@@ -16,5 +16,5 @@ yarn-error.log*
 .idea/
 
 .vercel
-.env.production
+.env
 
