@@ -89,9 +89,9 @@ export default function LandingPage() {
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 32px', height: 64,
-        background: '#0d1b2e',
-        borderBottom: '1px solid rgba(201,162,39,0.12)',
-        boxShadow: '0 2px 20px rgba(0,0,0,0.4)',
+        background: 'var(--navbar-bg)',
+        borderBottom: '1px solid var(--border-default)',
+        boxShadow: '0 2px 20px rgba(0,0,0,0.15)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Image src="/logo.png" alt="APL" width={36} height={36} unoptimized style={{ objectFit: 'contain' }} />
@@ -107,32 +107,31 @@ export default function LandingPage() {
             { href: '/dashboard?tab=standings', label: 'Standings' },
           ].map(n => (
             <Link key={n.href} href={n.href} className="hidden sm:block" style={{
-              fontSize: 13, color: '#8b9db7', textDecoration: 'none',
+              fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none',
               padding: '8px 16px', borderRadius: 8, transition: 'color .2s',
             }}
-              onMouseEnter={e => e.currentTarget.style.color = '#c9a227'}
-              onMouseLeave={e => e.currentTarget.style.color = '#8b9db7'}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--gold)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
             >{n.label}</Link>
           ))}
 
-          {/* Admin — desktop: full button, mobile: icon only */}
           <Link href="/admin/login" className="hidden sm:block" style={{
-            marginLeft: 4, fontSize: 13, fontWeight: 600, color: '#8b9db7',
+            marginLeft: 4, fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)',
             textDecoration: 'none', padding: '9px 18px', borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.05)',
+            border: '1px solid var(--border-default)', background: 'var(--bg-elevated)',
             transition: 'all .2s',
           }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,162,39,0.4)'; e.currentTarget.style.color = '#c9a227'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#8b9db7'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--gold)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-default)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
           >Admin</Link>
 
           {/* Mobile-only: Admin icon button */}
           <Link href="/admin/login" className="sm:hidden" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: 36, height: 36, borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.1)',
-            background: 'rgba(255,255,255,0.05)',
-            color: '#8b9db7', textDecoration: 'none', flexShrink: 0,
+            border: '1px solid var(--border-default)',
+            background: 'var(--bg-elevated)',
+            color: 'var(--text-secondary)', textDecoration: 'none', flexShrink: 0,
           }} title="Admin">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>

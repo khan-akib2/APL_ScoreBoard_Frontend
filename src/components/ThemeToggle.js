@@ -90,9 +90,9 @@ export function ThemeToggleCompact() {
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: 36, height: 36, borderRadius: 8,
-        border: '1px solid rgba(255,255,255,0.1)',
-        background: 'rgba(255,255,255,0.05)',
-        color: '#8b9db7',
+        border: '1px solid var(--border-default)',
+        background: 'var(--bg-elevated)',
+        color: 'var(--text-secondary)',
         cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0,
       }}
     >

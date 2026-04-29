@@ -48,7 +48,7 @@ function SidebarInner({ onClose }) {
     <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo-area">
-        <Image src="/logo.png" alt="Logo" width={50} height={50} unoptimized priority style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
+        <Image src="/logo.png" alt="Logo" width={80} height={80} unoptimized priority style={{ objectFit: 'contain' }} />
         <div>
           <p className="sidebar-brand-name">APL SCOREBOARD</p>
           <p className="sidebar-brand-sub">Live Tournament</p>

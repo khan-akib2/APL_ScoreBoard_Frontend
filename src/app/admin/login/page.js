@@ -137,13 +137,28 @@ export default function AdminLoginPage() {
         {/* Subtle glow */}
         <div style={{ position: 'absolute', top: '30%', right: '20%', width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,162,39,0.04), transparent 70%)', pointerEvents: 'none' }} />
 
+        {/* Mobile-only: logo watermark background */}
+        <div className="login-mobile-logo-bg" style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '90%', height: '90%',
+          backgroundImage: 'url(/logo.png)',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          opacity: 0.04,
+          pointerEvents: 'none',
+          zIndex: 0,
+          display: 'none',
+        }} />
+
         <div style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}>
 
           {/* Mobile logo */}
           <div className="login-mobile-logo" style={{ textAlign: 'center', marginBottom: 36, display: 'none' }}>
-            <Image src="/logo.png" alt="APL" width={52} height={52} unoptimized style={{ objectFit: 'contain', margin: '0 auto 12px', display: 'block' }} />
-            <p style={{ fontSize: 13, fontWeight: 800, color: '#c9a227', letterSpacing: '0.08em' }}>APL SCOREBOARD</p>
-            <p style={{ fontSize: 10, color: '#4a6a82', marginTop: 2, letterSpacing: '0.08em' }}>SEASON 8 · 2026</p>
+            <Image src="/logo.png" alt="APL" width={120} height={120} unoptimized style={{ objectFit: 'contain', display: 'block', margin: '0 auto 14px' }} />
+            <p style={{ fontSize: 15, fontWeight: 800, color: '#c9a227', letterSpacing: '0.08em' }}>APL SCOREBOARD</p>
+            <p style={{ fontSize: 11, color: '#4a6a82', marginTop: 3, letterSpacing: '0.1em' }}>SEASON 8 · 2026</p>
           </div>
 
           {/* Form header */}
@@ -278,19 +293,12 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '28px 0' }}>
-            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
-            <span style={{ fontSize: 11, color: '#2a3f55', fontWeight: 600, letterSpacing: '0.08em' }}>SECURED BY JWT</span>
-            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
-          </div>
-
           {/* Security note */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
             padding: '12px 14px', borderRadius: 10,
             background: 'rgba(201,162,39,0.03)', border: '1px solid rgba(201,162,39,0.08)',
-            marginBottom: 28,
+            margin: '24px 0',
           }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a227" strokeWidth="2" style={{ flexShrink: 0 }}>
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -319,6 +327,7 @@ export default function AdminLoginPage() {
         @media (max-width: 768px) {
           .login-left { display: none !important; }
           .login-mobile-logo { display: block !important; }
+          .login-mobile-logo-bg { display: block !important; }
         }
       `}</style>
     </div>

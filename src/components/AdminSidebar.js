@@ -38,7 +38,7 @@ export default function AdminSidebar({ onClose }) {
   return (
     <aside className="sidebar" suppressHydrationWarning>
       <div className="sidebar-logo-area">
-        <Image src="/logo.png" alt="Logo" width={44} height={44} unoptimized priority style={{ width: '44px', height: '44px', objectFit: 'contain' }} />
+        <Image src="/logo.png" alt="Logo" width={44} height={44} unoptimized priority style={{ objectFit: 'contain' }} />
         <div>
           <p className="sidebar-brand-name">APL SCOREBOARD</p>
           <p className="sidebar-brand-sub">Admin Panel</p>
