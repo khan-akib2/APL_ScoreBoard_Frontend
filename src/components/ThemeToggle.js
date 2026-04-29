@@ -67,7 +67,7 @@ export default function ThemeToggle() {
             }}
           >
             {o.icon}
-            {o.label}
+            <span className="hidden sm:inline">{o.label}</span>
           </button>
         );
       })}

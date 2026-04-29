@@ -100,6 +100,7 @@ export default function LandingPage() {
           </div>
         </div>
         <nav style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          {/* Desktop-only nav links */}
           {[
             { href: '/matches',                 label: 'Matches'   },
             { href: '/dashboard?tab=standings', label: 'Standings' },
@@ -112,6 +113,8 @@ export default function LandingPage() {
               onMouseLeave={e => e.currentTarget.style.color = '#8b9db7'}
             >{n.label}</Link>
           ))}
+
+          {/* Admin — desktop: full button, mobile: icon only */}
           <Link href="/admin/login" className="hidden sm:block" style={{
             marginLeft: 4, fontSize: 13, fontWeight: 600, color: '#8b9db7',
             textDecoration: 'none', padding: '9px 18px', borderRadius: 8,
@@ -121,14 +124,32 @@ export default function LandingPage() {
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,162,39,0.3)'; e.currentTarget.style.color = '#c9a227'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#8b9db7'; }}
           >Admin</Link>
-          <div className="hidden sm:block" style={{ marginLeft: 4 }}>
+
+          {/* Mobile-only: Admin icon button */}
+          <Link href="/admin/login" className="sm:hidden" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 36, height: 36, borderRadius: 8,
+            border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)',
+            color: '#8b9db7', textDecoration: 'none', flexShrink: 0,
+          }} title="Admin">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </Link>
+
+          {/* Theme toggle — always visible */}
+          <div style={{ marginLeft: 4 }}>
             <ThemeToggle />
           </div>
+
+          {/* Live Scores — always visible */}
           <Link href="/dashboard" style={{
             marginLeft: 4, fontSize: 13, fontWeight: 700, color: '#060e1a',
             background: '#c9a227', textDecoration: 'none',
-            padding: '9px 22px', borderRadius: 8, transition: 'background .2s',
-          }}>Live Scores</Link>        </nav>
+            padding: '9px 16px', borderRadius: 8, transition: 'background .2s',
+            whiteSpace: 'nowrap',
+          }}>Live Scores</Link>
+        </nav>
       </header>
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
