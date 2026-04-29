@@ -76,7 +76,7 @@ export default function ThemeToggle() {
   );
 }
 
-/* Compact single-button toggle — used in navbar on mobile */
+/* Compact single-button toggle — used in navbar on mobile (always dark navbar) */
 export function ThemeToggleCompact() {
   const { theme, setTheme } = useTheme();
   const order = ['dark', 'light', 'auto'];
@@ -90,8 +90,8 @@ export function ThemeToggleCompact() {
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: 36, height: 36, borderRadius: 8,
-        border: '1px solid rgba(255,255,255,0.12)',
-        background: 'rgba(255,255,255,0.06)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(255,255,255,0.05)',
         color: '#8b9db7',
         cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0,
       }}

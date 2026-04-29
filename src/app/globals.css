@@ -8,6 +8,7 @@
   --bg-secondary: #0a1628;
   --bg-card:      #0d1b2e;
   --bg-elevated:  #112240;
+  --navbar-bg:    #0d1b2e;
   --border-subtle:  rgba(201, 162, 39, 0.08);
   --border-default: rgba(201, 162, 39, 0.12);
   --border-strong:  rgba(201, 162, 39, 0.25);
@@ -31,6 +32,7 @@
   --bg-secondary: #ffffff;
   --bg-card:      #ffffff;
   --bg-elevated:  #eef1f7;
+  --navbar-bg:    #ffffff;
   --border-subtle:  rgba(180, 140, 20, 0.12);
   --border-default: rgba(180, 140, 20, 0.2);
   --border-strong:  rgba(180, 140, 20, 0.4);

@@ -75,22 +75,23 @@ export default function LandingPage() {
   }, [user, loading, router]);
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#060e1a' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)' }}>
       <div style={{ width: 32, height: 32, border: '2px solid rgba(201,162,39,0.2)', borderTopColor: '#c9a227', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#060e1a', color: '#e8e8e8', fontFamily: 'var(--font-inter)', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'var(--font-inter)', overflowX: 'hidden' }}>
 
       {/* ── Navbar ─────────────────────────────────────────────────────────── */}
       <header className="landing-nav" style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 32px', height: 64,
-        background: 'rgba(6,14,26,0.85)', backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(201,162,39,0.08)',
+        background: '#0d1b2e',
+        borderBottom: '1px solid rgba(201,162,39,0.12)',
+        boxShadow: '0 2px 20px rgba(0,0,0,0.4)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Image src="/logo.png" alt="APL" width={36} height={36} unoptimized style={{ objectFit: 'contain' }} />
@@ -118,10 +119,10 @@ export default function LandingPage() {
           <Link href="/admin/login" className="hidden sm:block" style={{
             marginLeft: 4, fontSize: 13, fontWeight: 600, color: '#8b9db7',
             textDecoration: 'none', padding: '9px 18px', borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.05)',
             transition: 'all .2s',
           }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,162,39,0.3)'; e.currentTarget.style.color = '#c9a227'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,162,39,0.4)'; e.currentTarget.style.color = '#c9a227'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#8b9db7'; }}
           >Admin</Link>
 
@@ -129,8 +130,8 @@ export default function LandingPage() {
           <Link href="/admin/login" className="sm:hidden" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: 36, height: 36, borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.12)',
-            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.05)',
             color: '#8b9db7', textDecoration: 'none', flexShrink: 0,
           }} title="Admin">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -189,16 +190,16 @@ export default function LandingPage() {
             fontWeight: 900, lineHeight: 1.05,
             letterSpacing: '-0.04em', marginBottom: 28,
           }}>
-            <span style={{ display: 'block', color: '#e8e8e8' }}>The Premier</span>
+            <span style={{ display: 'block', color: 'var(--text-primary)' }}>The Premier</span>
             <span style={{
               display: 'block',
               background: 'linear-gradient(135deg, #f3c570 0%, #c9a227 50%, #a07c1a 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
             }}>Cricket Tournament</span>
-            <span style={{ display: 'block', color: '#e8e8e8' }}>Is Live</span>
+            <span style={{ display: 'block', color: 'var(--text-primary)' }}>Is Live</span>
           </h1>
 
-          <p style={{ fontSize: 18, color: '#8b9db7', maxWidth: 520, margin: '0 auto 48px', lineHeight: 1.75 }}>
+          <p style={{ fontSize: 18, color: 'var(--text-secondary)', maxWidth: 520, margin: '0 auto 48px', lineHeight: 1.75 }}>
             8 teams. 2 groups. 1 champion. Follow every ball, every wicket, every moment — in real time.
           </p>
 
@@ -244,18 +245,18 @@ export default function LandingPage() {
             width: '100%',
             maxWidth: 560,
             margin: '0 auto',
-            border: '1px solid rgba(201,162,39,0.12)',
+            border: '1px solid var(--border-default)',
             borderRadius: 16, overflow: 'hidden',
-            background: 'rgba(10,22,40,0.6)',
+            background: 'var(--bg-card)',
             backdropFilter: 'blur(12px)',
           }}>
             {STATS.map((s, i) => (
               <div key={s.label} style={{
                 padding: '14px 8px', textAlign: 'center',
-                borderRight: i < STATS.length - 1 ? '1px solid rgba(201,162,39,0.08)' : 'none',
+                borderRight: i < STATS.length - 1 ? '1px solid var(--border-subtle)' : 'none',
               }}>
-                <p style={{ fontSize: 28, fontWeight: 900, color: '#c9a227', lineHeight: 1, letterSpacing: '-0.02em' }}>{s.value}</p>
-                <p style={{ fontSize: 9, color: '#4a6a82', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 6 }}>{s.label}</p>
+                <p style={{ fontSize: 28, fontWeight: 900, color: 'var(--gold)', lineHeight: 1, letterSpacing: '-0.02em' }}>{s.value}</p>
+                <p style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 6 }}>{s.label}</p>
               </div>
             ))}
           </div>
@@ -267,18 +268,18 @@ export default function LandingPage() {
         <SectionLabel>Tournament Format</SectionLabel>
         <SectionTitle>How the Tournament Works</SectionTitle>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 2, marginTop: 48, border: '1px solid rgba(201,162,39,0.1)', borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 2, marginTop: 48, border: '1px solid var(--border-subtle)', borderRadius: 16, overflow: 'hidden' }}>
           {FORMAT.map((f, i) => (
             <div key={f.step} style={{
               padding: '40px 36px',
-              background: i === 1 ? 'rgba(201,162,39,0.04)' : 'rgba(10,22,40,0.4)',
-              borderRight: i < FORMAT.length - 1 ? '1px solid rgba(201,162,39,0.08)' : 'none',
+              background: i === 1 ? 'var(--bg-elevated)' : 'var(--bg-card)',
+              borderRight: i < FORMAT.length - 1 ? '1px solid var(--border-subtle)' : 'none',
               position: 'relative',
             }}>
-              <p style={{ fontSize: 56, fontWeight: 900, color: 'rgba(201,162,39,0.08)', lineHeight: 1, marginBottom: 20, letterSpacing: '-0.04em' }}>{f.step}</p>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: '#e8e8e8', marginBottom: 12, letterSpacing: '-0.01em' }}>{f.title}</h3>
-              <p style={{ fontSize: 14, color: '#8b9db7', lineHeight: 1.7 }}>{f.desc}</p>
-              {i === 1 && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #c9a227, transparent)' }} />}
+              <p style={{ fontSize: 56, fontWeight: 900, color: 'var(--border-strong)', lineHeight: 1, marginBottom: 20, letterSpacing: '-0.04em' }}>{f.step}</p>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 12, letterSpacing: '-0.01em' }}>{f.title}</h3>
+              <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{f.desc}</p>
+              {i === 1 && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, var(--gold), transparent)' }} />}
             </div>
           ))}
         </div>
@@ -292,15 +293,14 @@ export default function LandingPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginTop: 48 }}>
           {['A', 'B'].map((grp) => (
             <div key={grp} style={{
-              border: '1px solid rgba(201,162,39,0.1)',
+              border: '1px solid var(--border-subtle)',
               borderRadius: 16, overflow: 'hidden',
-              background: 'rgba(10,22,40,0.4)',
+              background: 'var(--bg-card)',
             }}>
-              {/* Group header */}
               <div style={{
                 padding: '20px 28px',
-                background: 'rgba(201,162,39,0.06)',
-                borderBottom: '1px solid rgba(201,162,39,0.1)',
+                background: 'var(--bg-elevated)',
+                borderBottom: '1px solid var(--border-subtle)',
                 display: 'flex', alignItems: 'center', gap: 14,
               }}>
                 <div style={{
@@ -310,26 +310,25 @@ export default function LandingPage() {
                   fontSize: 18, fontWeight: 900, color: '#060e1a',
                 }}>{grp}</div>
                 <div>
-                  <p style={{ fontSize: 15, fontWeight: 800, color: '#e8e8e8' }}>Group {grp}</p>
-                  <p style={{ fontSize: 11, color: '#4a6a82', marginTop: 1 }}>4 teams · Round Robin</p>
+                  <p style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)' }}>Group {grp}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>4 teams · Round Robin</p>
                 </div>
               </div>
-              {/* Team rows */}
               <div style={{ padding: '12px 16px' }}>
                 {TEAMS.filter(t => t.group === grp).map((t, i) => (
                   <div key={t.name} style={{
                     display: 'flex', alignItems: 'center', gap: 14,
                     padding: '13px 12px', borderRadius: 10,
-                    background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                    background: i % 2 === 0 ? 'var(--bg-elevated)' : 'transparent',
                   }}>
                     <div style={{
                       width: 28, height: 28, borderRadius: 8,
-                      background: 'rgba(201,162,39,0.08)',
-                      border: '1px solid rgba(201,162,39,0.15)',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-default)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 11, fontWeight: 800, color: '#c9a227',
+                      fontSize: 11, fontWeight: 800, color: 'var(--gold)',
                     }}>{i + 1}</div>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: '#e8e8e8' }}>{t.name}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t.name}</span>
                   </div>
                 ))}
               </div>
@@ -347,23 +346,23 @@ export default function LandingPage() {
           {FEATURES.map((f) => (
             <div key={f.title} style={{
               padding: '32px 28px',
-              border: '1px solid rgba(201,162,39,0.08)',
+              border: '1px solid var(--border-subtle)',
               borderRadius: 14,
-              background: 'rgba(10,22,40,0.5)',
+              background: 'var(--bg-card)',
               transition: 'border-color .25s, transform .25s',
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,162,39,0.25)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,162,39,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <div style={{
                 width: 46, height: 46, borderRadius: 12,
-                background: 'rgba(201,162,39,0.07)',
-                border: '1px solid rgba(201,162,39,0.15)',
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#c9a227', marginBottom: 20,
+                color: 'var(--gold)', marginBottom: 20,
               }}>{f.svg}</div>
-              <h3 style={{ fontSize: 15, fontWeight: 800, color: '#e8e8e8', marginBottom: 10, letterSpacing: '-0.01em' }}>{f.title}</h3>
-              <p style={{ fontSize: 13, color: '#8b9db7', lineHeight: 1.7 }}>{f.desc}</p>
+              <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 10, letterSpacing: '-0.01em' }}>{f.title}</h3>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -374,19 +373,19 @@ export default function LandingPage() {
         <div style={{
           borderRadius: 20, padding: '48px 24px', textAlign: 'center',
           position: 'relative', overflow: 'hidden',
-          border: '1px solid rgba(201,162,39,0.15)',
-          background: 'linear-gradient(135deg, rgba(201,162,39,0.08) 0%, rgba(10,22,40,0.8) 60%)',
+          border: '1px solid var(--border-default)',
+          background: 'var(--bg-card)',
         }}>
           <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,162,39,0.1), transparent 70%)', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', bottom: -60, left: -60, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,162,39,0.06), transparent 70%)', pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 14px', borderRadius: 100, border: '1px solid rgba(201,162,39,0.25)', fontSize: 10, fontWeight: 700, color: '#c9a227', letterSpacing: '0.12em', marginBottom: 24 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 14px', borderRadius: 100, border: '1px solid var(--border-strong)', fontSize: 10, fontWeight: 700, color: 'var(--gold)', letterSpacing: '0.12em', marginBottom: 24 }}>
               SEASON 8 · NOW LIVE
             </div>
-            <h2 style={{ fontSize: 'clamp(26px,4vw,44px)', fontWeight: 900, color: '#e8e8e8', marginBottom: 16, letterSpacing: '-0.03em' }}>
+            <h2 style={{ fontSize: 'clamp(26px,4vw,44px)', fontWeight: 900, color: 'var(--text-primary)', marginBottom: 16, letterSpacing: '-0.03em' }}>
               Don't Miss a Single Ball
             </h2>
-            <p style={{ fontSize: 16, color: '#8b9db7', maxWidth: 440, margin: '0 auto 36px', lineHeight: 1.7 }}>
+            <p style={{ fontSize: 16, color: 'var(--text-secondary)', maxWidth: 440, margin: '0 auto 36px', lineHeight: 1.7 }}>
               Follow the live action, check standings, and track your favourite team — all in one place.
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -416,17 +415,17 @@ export default function LandingPage() {
 
       {/* ── Footer ────────────────────────────────────────────────────────── */}
       <footer style={{
-        borderTop: '1px solid rgba(201,162,39,0.08)',
+        borderTop: '1px solid var(--border-subtle)',
         padding: '24px 20px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Image src="/logo.png" alt="APL" width={24} height={24} unoptimized style={{ objectFit: 'contain', opacity: 0.6 }} />
-          <span style={{ fontSize: 11, color: '#4a6a82', fontWeight: 600, letterSpacing: '0.08em' }}>APL SCOREBOARD · SEASON 8 · 2026</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.08em' }}>APL SCOREBOARD · SEASON 8 · 2026</span>
         </div>
-        <Link href="/admin/login" style={{ fontSize: 11, color: '#4a6a82', textDecoration: 'none', fontWeight: 600, letterSpacing: '0.06em', transition: 'color .2s' }}
-          onMouseEnter={e => e.currentTarget.style.color = '#c9a227'}
-          onMouseLeave={e => e.currentTarget.style.color = '#4a6a82'}
+        <Link href="/admin/login" style={{ fontSize: 11, color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 600, letterSpacing: '0.06em', transition: 'color .2s' }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--gold)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
         >Admin Panel →</Link>
       </footer>
 
@@ -437,14 +436,14 @@ export default function LandingPage() {
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 function SectionLabel({ children }) {
   return (
-    <p style={{ fontSize: 11, fontWeight: 700, color: '#c9a227', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12, textAlign: 'center' }}>
+    <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12, textAlign: 'center' }}>
       {children}
     </p>
   );
 }
 function SectionTitle({ children }) {
   return (
-    <h2 style={{ fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: '#e8e8e8', letterSpacing: '-0.03em', textAlign: 'center', lineHeight: 1.15 }}>
+    <h2 style={{ fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.03em', textAlign: 'center', lineHeight: 1.15 }}>
       {children}
     </h2>
   );

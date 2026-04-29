@@ -2,15 +2,15 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 // theme: 'dark' | 'light' | 'auto'
-const ThemeContext = createContext({ theme: 'dark', resolved: 'dark', setTheme: () => {} });
+const ThemeContext = createContext({ theme: 'auto', resolved: 'dark', setTheme: () => {} });
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState('dark');
+  const [theme, setThemeState] = useState('auto');
   const [resolved, setResolved] = useState('dark');
 
-  // On mount, read saved preference
+  // On mount, read saved preference — default to 'auto' so system preference is respected
   useEffect(() => {
-    const saved = localStorage.getItem('apl-theme') || 'dark';
+    const saved = localStorage.getItem('apl-theme') || 'auto';
     setThemeState(saved);
   }, []);
 
