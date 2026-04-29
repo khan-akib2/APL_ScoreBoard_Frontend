@@ -126,7 +126,7 @@ export default function LandingPage() {
           >Admin</Link>
 
           {/* Mobile-only: Admin icon button */}
-          <Link href="/admin/login" className="sm:hidden" style={{
+          <Link href="/admin/login" className="flex sm:hidden" style={{
             alignItems: 'center', justifyContent: 'center',
             width: 36, height: 36, borderRadius: 8,
             border: '1px solid var(--border-default)',
