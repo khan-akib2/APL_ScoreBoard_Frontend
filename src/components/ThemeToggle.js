@@ -37,6 +37,7 @@ const OPTIONS = [
   },
 ];
 
+/* Full 3-button toggle — used in sidebars */
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
@@ -67,10 +68,35 @@ export default function ThemeToggle() {
             }}
           >
             {o.icon}
-            <span className="hidden sm:inline">{o.label}</span>
+            {o.label}
           </button>
         );
       })}
     </div>
+  );
+}
+
+/* Compact single-button toggle — used in navbar on mobile */
+export function ThemeToggleCompact() {
+  const { theme, setTheme } = useTheme();
+  const order = ['dark', 'light', 'auto'];
+  const current = OPTIONS.find(o => o.value === theme) || OPTIONS[0];
+  const next = order[(order.indexOf(theme) + 1) % order.length];
+
+  return (
+    <button
+      onClick={() => setTheme(next)}
+      title={`Theme: ${current.label} — tap to switch`}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        width: 36, height: 36, borderRadius: 8,
+        border: '1px solid rgba(255,255,255,0.12)',
+        background: 'rgba(255,255,255,0.06)',
+        color: '#8b9db7',
+        cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0,
+      }}
+    >
+      {current.icon}
+    </button>
   );
 }

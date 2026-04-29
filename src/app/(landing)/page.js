@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
-import ThemeToggle from '@/components/ThemeToggle';
+import ThemeToggle, { ThemeToggleCompact } from '@/components/ThemeToggle';
 
 /* ─── static data ─────────────────────────────────────────────────────────── */
 const TEAMS = [
@@ -129,7 +129,8 @@ export default function LandingPage() {
           <Link href="/admin/login" className="sm:hidden" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: 36, height: 36, borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'rgba(255,255,255,0.06)',
             color: '#8b9db7', textDecoration: 'none', flexShrink: 0,
           }} title="Admin">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -137,8 +138,11 @@ export default function LandingPage() {
             </svg>
           </Link>
 
-          {/* Theme toggle — always visible */}
-          <div style={{ marginLeft: 4 }}>
+          {/* Theme toggle — compact icon on mobile, full on desktop */}
+          <div className="sm:hidden" style={{ marginLeft: 2 }}>
+            <ThemeToggleCompact />
+          </div>
+          <div className="hidden sm:block" style={{ marginLeft: 4 }}>
             <ThemeToggle />
           </div>
 
