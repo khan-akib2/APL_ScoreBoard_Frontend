@@ -32,8 +32,10 @@ const C = {
 const Btn = ({ onClick, children, variant = 'default', size = 'md', style: extra = {} }) => {
   const base = {
     border: 'none', cursor: 'pointer', fontWeight: 800,
-    borderRadius: 10, transition: 'all .15s', fontFamily: 'inherit',
+    borderRadius: 10, fontFamily: 'inherit',
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+    touchAction: 'manipulation', // faster tap on mobile
+    WebkitTapHighlightColor: 'transparent',
   };
   const sizes = { sm: { height: 40, fontSize: 12 }, md: { height: 52, fontSize: 14 }, lg: { height: 60, fontSize: 18 } };
   const variants = {
@@ -114,7 +116,7 @@ export default function ScorePage() {
     else if (!loading && user) loadMatch();
   }, [loading, user, id]);
 
-  const showMsg = (text, type = 'info', duration = 2500) => {
+  const showMsg = (text, type = 'info', duration = 1500) => {
     setMsg(text); setMsgType(type);
     setTimeout(() => setMsg(''), duration);
   };
@@ -155,7 +157,7 @@ export default function ScorePage() {
     const s = os ?? strikerRef.current, ns = ons ?? nonStrikerRef.current;
     const b = ob ?? bowlerRef.current, inn = oi ?? inningsNumRef.current;
     if (!s || !ns || !b) return;
-    // Debounce: cancel any pending call and wait 300ms
+    // Debounce: cancel any pending call and wait 150ms
     if (setPlayersTimerRef.current) clearTimeout(setPlayersTimerRef.current);
     setPlayersTimerRef.current = setTimeout(async () => {
       const res = await api.put(`/matches/${id}/players`, { inningsNum: inn, strikerId: s, nonStrikerId: ns, bowlerId: b });
@@ -171,7 +173,7 @@ export default function ScorePage() {
           setNonStrikerId(nskId); nonStrikerRef.current = nskId;
         }
       }
-    }, 300);
+    }, 150);
   }, [id]);
 
   const submitBall = useCallback(async ({ runs = 0, isWicket = false, dismissalType = '', extras = '', extraRuns = 0 }) => {
@@ -245,6 +247,11 @@ export default function ScorePage() {
   const nonStriker = innings?.currentBatsmen?.find(b => !b.isStriker);
   const currentBowler = innings?.currentBowler;
   const currentOverBalls = (innings?.ballByBall || []).filter(b => b.over === (innings?.overs || 0));
+  
+  // Get previous over (completed over)
+  const prevOverNum = (innings?.overs || 0) - 1;
+  const prevOverBalls = prevOverNum >= 0 ? (innings?.ballByBall || []).filter(b => b.over === prevOverNum) : [];
+  const prevOverRuns = prevOverBalls.reduce((sum, b) => sum + (b.runs || 0) + (b.extras ? 1 : 0), 0);
 
   return (
     <AdminLayout>
@@ -302,10 +309,10 @@ export default function ScorePage() {
         )}
 
         {/* ── Two-column body ── */}
-        <div className="score-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, flex: 1, minHeight: 0 }}>
+        <div className="score-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, flex: 1, minHeight: 0, overflow: 'hidden' }}>
 
           {/* LEFT column — scoreboard + players */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto', minHeight: 0 }}>
 
         {/* ── Live Scoreboard ── */}
         <Panel style={{ padding: 0, overflow: 'hidden' }}>
@@ -357,6 +364,20 @@ export default function ScorePage() {
               <p style={{ fontSize: 9, fontWeight: 700, color: C.dim, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>This Over</p>
               {currentOverBalls.map((ball, i) => (
                 <div key={i} style={{ width: 34, height: 34, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, fontFamily: 'var(--font-bebas)', ...ballStyle(ball) }}>
+                  {ballLabel(ball)}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Previous over */}
+          {prevOverBalls.length > 0 && (
+            <div style={{ padding: '10px 20px', borderTop: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', background: 'rgba(0,0,0,0.15)' }}>
+              <p style={{ fontSize: 9, fontWeight: 700, color: C.dim, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4, whiteSpace: 'nowrap' }}>
+                Over {prevOverNum + 1} · <span style={{ color: C.muted }}>{prevOverRuns} runs</span>
+              </p>
+              {prevOverBalls.map((ball, i) => (
+                <div key={i} style={{ width: 28, height: 28, borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, fontFamily: 'var(--font-bebas)', opacity: 0.75, ...ballStyle(ball) }}>
                   {ballLabel(ball)}
                 </div>
               ))}
@@ -509,6 +530,35 @@ export default function ScorePage() {
             </div>
           </div>
         </Panel>
+
+          {/* ── Over History (right column) ── */}
+          {innings?.overs > 0 && (
+            <Panel style={{ padding: '14px 18px' }}>
+              <Label>Over History</Label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                {Array.from({ length: innings.overs }, (_, i) => {
+                  const overBalls = (innings.ballByBall || []).filter(b => b.over === i);
+                  const overRuns = overBalls.reduce((sum, b) => sum + (b.runs || 0) + (b.extras ? 1 : 0), 0);
+                  const hasWicket = overBalls.some(b => b.isWicket);
+                  return (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.02)', border: `1px solid ${C.border}` }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: C.dim, minWidth: 36, letterSpacing: '0.04em' }}>OV {i + 1}</span>
+                      <div style={{ display: 'flex', gap: 4, flex: 1 }}>
+                        {overBalls.map((ball, j) => (
+                          <div key={j} style={{ width: 26, height: 26, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, fontFamily: 'var(--font-bebas)', ...ballStyle(ball) }}>
+                            {ballLabel(ball)}
+                          </div>
+                        ))}
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: hasWicket ? C.red : C.gold, minWidth: 32, textAlign: 'right', fontFamily: 'var(--font-bebas)' }}>
+                        {overRuns}{hasWicket ? 'W' : ''}
+                      </span>
+                    </div>
+                  );
+                }).reverse()}
+              </div>
+            </Panel>
+          )}
 
           </div>{/* end RIGHT column */}
         </div>{/* end two-column grid */}

@@ -34,7 +34,7 @@ export default function AdminMatches() {
   const [matches, setMatches]   = useState([]);
   const [teams, setTeams]       = useState([]);
   const [panel, setPanel]       = useState(null); // null | 'create' | match-object (edit)
-  const [form, setForm]         = useState({ teamA:'', teamB:'', stage:'group', group:'A', ground:'Ground 1', overs:5, date:'', round:1 });
+  const [form, setForm] = useState({ teamA:'', teamB:'', stage:'group', group:'A', overs:5, time:'' });
   const [tossModal, setTossModal]   = useState(null);
   const [tossForm, setTossForm]     = useState({ tossWinner:'', tossDecision:'bat' });
   const [deleteId, setDeleteId]     = useState(null);
@@ -54,12 +54,13 @@ export default function AdminMatches() {
   const showToast = (text, type='ok') => { setToast({ text, type }); setTimeout(() => setToast({ text:'', type:'ok' }), 3000); };
 
   const openCreate = () => {
-    setForm({ teamA:'', teamB:'', stage:'group', group:'A', ground:'Ground 1', overs:5, date:'', round:1 });
+    setForm({ teamA:'', teamB:'', stage:'group', group:'A', overs:5, time:'' });
     setPanel('create');
   };
 
   const openEdit = (m) => {
-    setForm({ teamA: m.teamA?._id||m.teamA, teamB: m.teamB?._id||m.teamB, stage: m.stage, group: m.group, ground: m.ground, overs: m.overs, date: m.date ? new Date(m.date).toISOString().split('T')[0] : '', round: m.round||1 });
+    const t = m.date ? new Date(m.date).toTimeString().slice(0,5) : '';
+    setForm({ teamA: m.teamA?._id||m.teamA, teamB: m.teamB?._id||m.teamB, stage: m.stage, group: m.group, overs: m.overs, time: t });
     setPanel(m);
   };
 
@@ -67,8 +68,10 @@ export default function AdminMatches() {
     e.preventDefault();
     if (form.teamA === form.teamB) { showToast('Select different teams', 'err'); return; }
     setSaving(true);
-    const data = { ...form, date: form.date || new Date(), status: panel === 'create' ? 'scheduled' : panel.status };
-    if (form.stage !== 'group') delete data.round;
+    const MATCH_DAY = '2026-05-02';
+    const date = form.time ? `${MATCH_DAY}T${form.time}:00` : MATCH_DAY;
+    const ground = form.stage === 'group' ? (form.group === 'A' ? 'Ground 1' : 'Ground 2') : 'Ground 1';
+    const data = { teamA: form.teamA, teamB: form.teamB, stage: form.stage, group: form.group, ground, overs: form.overs, date, status: panel === 'create' ? 'scheduled' : panel.status };
     const res = panel === 'create' ? await api.post('/matches', data) : await api.put(`/matches/${panel._id}`, data);
     setSaving(false);
     if (res._id) { showToast(panel === 'create' ? 'Match created' : 'Match updated'); setPanel(null); load(); }
@@ -339,23 +342,58 @@ export default function AdminMatches() {
               {/* Form body */}
               <div style={{ padding: '20px 18px' }}>
                 <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+                  {/* Team A */}
                   <Field label="Team A">
-                    <select required value={form.teamA} onChange={e => setForm({...form, teamA: e.target.value})} style={sel}>
-                      <option value="">Select Team A</option>
-                      {teams.map(t => <option key={t._id} value={t._id}>{t.name} (Grp {t.group})</option>)}
-                    </select>
+                    <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                      {teams.length === 0 ? (
+                        <p style={{ fontSize:12, color:C.dim, padding:'10px 0' }}>No teams found</p>
+                      ) : teams.map(t => (
+                        <button key={t._id} type="button" onClick={() => setForm({...form, teamA: t._id})} style={{
+                          padding:'10px 14px', borderRadius:8, border:`1px solid ${form.teamA===t._id ? C.gold : C.border}`,
+                          background: form.teamA===t._id ? 'rgba(201,162,39,0.1)' : 'rgba(255,255,255,0.02)',
+                          color: form.teamA===t._id ? C.gold : C.muted,
+                          cursor:'pointer', fontWeight: form.teamA===t._id ? 700 : 500,
+                          fontSize:13, fontFamily:'inherit', textAlign:'left',
+                          display:'flex', alignItems:'center', justifyContent:'space-between',
+                          transition:'all .15s',
+                        }}>
+                          <span>{t.name}</span>
+                          <span style={{ fontSize:10, opacity:0.6 }}>Grp {t.group}</span>
+                        </button>
+                      ))}
+                    </div>
                   </Field>
+
+                  {/* Team B */}
                   <Field label="Team B">
-                    <select required value={form.teamB} onChange={e => setForm({...form, teamB: e.target.value})} style={sel}>
-                      <option value="">Select Team B</option>
-                      {teams.map(t => <option key={t._id} value={t._id}>{t.name} (Grp {t.group})</option>)}
-                    </select>
+                    <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                      {teams.length === 0 ? (
+                        <p style={{ fontSize:12, color:C.dim, padding:'10px 0' }}>No teams found</p>
+                      ) : teams.map(t => (
+                        <button key={t._id} type="button" onClick={() => setForm({...form, teamB: t._id})} style={{
+                          padding:'10px 14px', borderRadius:8, border:`1px solid ${form.teamB===t._id ? '#60a5fa' : C.border}`,
+                          background: form.teamB===t._id ? 'rgba(96,165,250,0.1)' : 'rgba(255,255,255,0.02)',
+                          color: form.teamB===t._id ? '#60a5fa' : C.muted,
+                          cursor:'pointer', fontWeight: form.teamB===t._id ? 700 : 500,
+                          fontSize:13, fontFamily:'inherit', textAlign:'left',
+                          display:'flex', alignItems:'center', justifyContent:'space-between',
+                          transition:'all .15s',
+                          opacity: form.teamA === t._id ? 0.3 : 1,
+                        }} disabled={form.teamA === t._id}>
+                          <span>{t.name}</span>
+                          <span style={{ fontSize:10, opacity:0.6 }}>Grp {t.group}</span>
+                        </button>
+                      ))}
+                    </div>
                   </Field>
+
+                  {/* Stage + Group */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <Field label="Stage">
                       <select value={form.stage} onChange={e => {
                         const s = e.target.value;
-                        setForm({...form, stage: s, group: s==='group'?'A': s==='semi'?'Semi Final 1':'Final', round: s==='group'?1:undefined});
+                        setForm({...form, stage: s, group: s==='group'?'A': s==='semi'?'Semi Final 1':'Final'});
                       }} style={sel}>
                         <option value="group">Group</option>
                         <option value="semi">Semi Final</option>
@@ -374,37 +412,27 @@ export default function AdminMatches() {
                           <option value="Semi Final 2">SF 2</option>
                         </select>
                       ) : (
-                        <input value="Final" disabled style={{...sel, color: '#4a6a82', cursor: 'default'}} />
+                        <input value="Final" disabled style={{...sel, color: C.dim, cursor: 'default'}} />
                       )}
                     </Field>
                   </div>
+
+                  {/* Overs + Time */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <Field label="Ground">
-                      <select value={form.ground} onChange={e => setForm({...form, ground: e.target.value})} style={sel}>
-                        <option value="Ground 1">Ground 1</option>
-                        <option value="Ground 2">Ground 2</option>
-                      </select>
-                    </Field>
                     <Field label="Overs">
                       <input type="number" min="1" max="50" value={form.overs} onChange={e => setForm({...form, overs: Number(e.target.value)})} style={{...sel, cursor: 'text'}} />
                     </Field>
-                  </div>
-                  {form.stage==='group' && (
-                    <Field label="Round">
-                      <input type="number" min="1" max="10" value={form.round} onChange={e => setForm({...form, round: Number(e.target.value)})} style={{...sel, cursor: 'text'}} />
+                    <Field label="Match Time">
+                      <input type="time" value={form.time} onChange={e => setForm({...form, time: e.target.value})} style={{...sel, cursor: 'text'}} />
                     </Field>
-                  )}
-                  <Field label="Date">
-                    <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} style={{...sel, cursor: 'text'}} />
-                  </Field>
+                  </div>
 
-                  {/* Divider */}
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '2px 0' }} />
 
-                  <button type="submit" disabled={saving} style={{
+                  <button type="submit" disabled={saving || !form.teamA || !form.teamB} style={{
                     padding: '12px', borderRadius: 9, border: 'none',
-                    cursor: saving ? 'not-allowed' : 'pointer',
-                    background: saving ? 'rgba(201,162,39,0.4)' : 'linear-gradient(135deg,#d4a82a,#c9a227)',
+                    cursor: (saving || !form.teamA || !form.teamB) ? 'not-allowed' : 'pointer',
+                    background: (saving || !form.teamA || !form.teamB) ? 'rgba(201,162,39,0.4)' : 'linear-gradient(135deg,#d4a82a,#c9a227)',
                     color: '#060e1a', fontWeight: 800, fontSize: 13, fontFamily: 'inherit',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
                     boxShadow: saving ? 'none' : '0 4px 16px rgba(201,162,39,0.2)',
@@ -430,21 +458,50 @@ export default function AdminMatches() {
               </button>
             </div>
             <form onSubmit={handleSave} style={{ display:'flex', flexDirection:'column', gap:14 }}>
+
+              {/* Team A */}
               <Field label="Team A">
-                <select required value={form.teamA} onChange={e => setForm({...form, teamA: e.target.value})} style={sel}>
-                  <option value="">Select Team A</option>
-                  {teams.map(t => <option key={t._id} value={t._id}>{t.name} (Grp {t.group})</option>)}
-                </select>
+                <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:200, overflowY:'auto' }}>
+                  {teams.map(t => (
+                    <button key={t._id} type="button" onClick={() => setForm({...form, teamA: t._id})} style={{
+                      padding:'10px 12px', borderRadius:8, border:`1px solid ${form.teamA===t._id ? C.gold : C.border}`,
+                      background: form.teamA===t._id ? 'rgba(201,162,39,0.1)' : 'rgba(255,255,255,0.02)',
+                      color: form.teamA===t._id ? C.gold : C.muted,
+                      cursor:'pointer', fontWeight: form.teamA===t._id ? 700 : 500,
+                      fontSize:13, fontFamily:'inherit', textAlign:'left',
+                      display:'flex', alignItems:'center', justifyContent:'space-between',
+                    }}>
+                      <span>{t.name}</span>
+                      <span style={{ fontSize:10, opacity:0.6 }}>Grp {t.group}</span>
+                    </button>
+                  ))}
+                </div>
               </Field>
+
+              {/* Team B */}
               <Field label="Team B">
-                <select required value={form.teamB} onChange={e => setForm({...form, teamB: e.target.value})} style={sel}>
-                  <option value="">Select Team B</option>
-                  {teams.map(t => <option key={t._id} value={t._id}>{t.name} (Grp {t.group})</option>)}
-                </select>
+                <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:200, overflowY:'auto' }}>
+                  {teams.map(t => (
+                    <button key={t._id} type="button" onClick={() => setForm({...form, teamB: t._id})} style={{
+                      padding:'10px 12px', borderRadius:8, border:`1px solid ${form.teamB===t._id ? '#60a5fa' : C.border}`,
+                      background: form.teamB===t._id ? 'rgba(96,165,250,0.1)' : 'rgba(255,255,255,0.02)',
+                      color: form.teamB===t._id ? '#60a5fa' : C.muted,
+                      cursor:'pointer', fontWeight: form.teamB===t._id ? 700 : 500,
+                      fontSize:13, fontFamily:'inherit', textAlign:'left',
+                      display:'flex', alignItems:'center', justifyContent:'space-between',
+                      opacity: form.teamA === t._id ? 0.3 : 1,
+                    }} disabled={form.teamA === t._id}>
+                      <span>{t.name}</span>
+                      <span style={{ fontSize:10, opacity:0.6 }}>Grp {t.group}</span>
+                    </button>
+                  ))}
+                </div>
               </Field>
+
+              {/* Stage + Group */}
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
                 <Field label="Stage">
-                  <select value={form.stage} onChange={e => { const s=e.target.value; setForm({...form, stage:s, group:s==='group'?'A':s==='semi'?'Semi Final 1':'Final', round:s==='group'?1:undefined}); }} style={sel}>
+                  <select value={form.stage} onChange={e => { const s=e.target.value; setForm({...form, stage:s, group:s==='group'?'A':s==='semi'?'Semi Final 1':'Final'}); }} style={sel}>
                     <option value="group">Group</option>
                     <option value="semi">Semi Final</option>
                     <option value="final">Final</option>
@@ -462,32 +519,24 @@ export default function AdminMatches() {
                       <option value="Semi Final 2">SF 2</option>
                     </select>
                   ) : (
-                    <input value="Final" disabled style={{...sel, color:'#4a6a82', cursor:'default'}} />
+                    <input value="Final" disabled style={{...sel, color:C.dim, cursor:'default'}} />
                   )}
                 </Field>
               </div>
+
+              {/* Overs + Time */}
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-                <Field label="Ground">
-                  <select value={form.ground} onChange={e => setForm({...form, ground:e.target.value})} style={sel}>
-                    <option value="Ground 1">Ground 1</option>
-                    <option value="Ground 2">Ground 2</option>
-                  </select>
-                </Field>
                 <Field label="Overs">
                   <input type="number" min="1" max="50" value={form.overs} onChange={e => setForm({...form, overs:Number(e.target.value)})} style={{...sel, cursor:'text'}} />
                 </Field>
-              </div>
-              {form.stage==='group' && (
-                <Field label="Round">
-                  <input type="number" min="1" max="10" value={form.round} onChange={e => setForm({...form, round:Number(e.target.value)})} style={{...sel, cursor:'text'}} />
+                <Field label="Match Time">
+                  <input type="time" value={form.time} onChange={e => setForm({...form, time:e.target.value})} style={{...sel, cursor:'text'}} />
                 </Field>
-              )}
-              <Field label="Date">
-                <input type="date" value={form.date} onChange={e => setForm({...form, date:e.target.value})} style={{...sel, cursor:'text'}} />
-              </Field>
-              <button type="submit" disabled={saving} style={{
-                padding:'13px', borderRadius:9, border:'none', cursor:saving?'not-allowed':'pointer',
-                background:saving?'rgba(201,162,39,0.4)':'linear-gradient(135deg,#d4a82a,#c9a227)',
+              </div>
+
+              <button type="submit" disabled={saving || !form.teamA || !form.teamB} style={{
+                padding:'13px', borderRadius:9, border:'none', cursor:(saving || !form.teamA || !form.teamB)?'not-allowed':'pointer',
+                background:(saving || !form.teamA || !form.teamB)?'rgba(201,162,39,0.4)':'linear-gradient(135deg,#d4a82a,#c9a227)',
                 color:'#060e1a', fontWeight:800, fontSize:14, fontFamily:'inherit',
                 display:'flex', alignItems:'center', justifyContent:'center', gap:7,
               }}>

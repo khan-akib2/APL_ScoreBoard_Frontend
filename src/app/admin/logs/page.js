@@ -15,16 +15,84 @@ const EVENT_STYLES = {
 
 function fmt(d) {
   if (!d) return '—';
-  const dt = new Date(d);
-  return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-function duration(start, end) {
-  if (!start || !end) return null;
-  const ms = new Date(end) - new Date(start);
-  const m = Math.floor(ms / 60000);
-  const s = Math.floor((ms % 60000) / 1000);
-  return `${m}m ${s}s`;
+function LogTable({ matches, title, color }) {
+  const logs = matches.flatMap(m =>
+    (m.logs || []).map(log => ({ ...log, match: m }))
+  ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  return (
+    <div style={{
+      background: '#0a1628',
+      border: `1px solid ${color}30`,
+      borderRadius: 14, overflow: 'hidden',
+      boxShadow: '0 0 0 1px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+    }}>
+      {/* Title bar */}
+      <div style={{
+        padding: '12px 20px',
+        background: 'linear-gradient(135deg, #0f1e35, #0a1628)',
+        borderBottom: `1px solid ${color}25`,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 5 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(239,68,68,0.55)' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,165,0,0.45)' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(34,197,94,0.45)' }} />
+          </div>
+          <p style={{ fontSize: 12, fontWeight: 700, color, letterSpacing: '0.08em' }}>{title}</p>
+        </div>
+        <span style={{ fontSize: 10, color: '#4a6a82', fontWeight: 600 }}>{logs.length} ENTRIES</span>
+      </div>
+
+      {/* Column headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: '90px 110px 1fr 150px', padding: '8px 16px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        {['Time', 'Event', 'Details', 'Match'].map(h => (
+          <p key={h} style={{ fontSize: 10, fontWeight: 700, color: '#4a6a82', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{h}</p>
+        ))}
+      </div>
+
+      {/* Rows */}
+      <div style={{ maxHeight: 340, overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'rgba(201,162,39,0.2) transparent' }}>
+        {logs.length === 0 ? (
+          <div style={{ padding: '40px 24px', textAlign: 'center', color: '#4a6a82', fontSize: 13 }}>
+            No logs yet for {title}
+          </div>
+        ) : logs.map((log, i) => {
+          const es = EVENT_STYLES[log.event] || EVENT_STYLES.match_reset;
+          return (
+            <div key={i} style={{
+              display: 'grid', gridTemplateColumns: '90px 110px 1fr 150px',
+              padding: '11px 16px',
+              borderBottom: i < logs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <p style={{ fontSize: 11, color: '#8b9db7', fontFamily: 'monospace', alignSelf: 'center' }}>{fmt(log.timestamp)}</p>
+              <div style={{ alignSelf: 'center' }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: es.color, padding: '3px 8px', borderRadius: 4, background: es.bg, border: `1px solid ${es.border}`, letterSpacing: '0.1em' }}>
+                  {es.label}
+                </span>
+              </div>
+              <p style={{ fontSize: 12, color: '#c8d4e0', alignSelf: 'center', paddingRight: 12 }}>{log.message}</p>
+              <p style={{ fontSize: 11, color: '#4a6a82', alignSelf: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {log.match?.teamA?.name} vs {log.match?.teamB?.name}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '8px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.15)', fontSize: 11, color: '#4a6a82' }}>
+        {matches.length} match{matches.length !== 1 ? 'es' : ''} · Auto-refreshes every 15s
+      </div>
+    </div>
+  );
 }
 
 export default function AdminLogs() {
@@ -50,10 +118,9 @@ export default function AdminLogs() {
     return () => clearInterval(t);
   }, []);
 
-  // Flatten all logs across all matches, sorted newest first
-  const allLogs = matches.flatMap(m =>
-    (m.logs || []).map(log => ({ ...log, match: m }))
-  ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const groupA    = matches.filter(m => m.group === 'A');
+  const groupB    = matches.filter(m => m.group === 'B');
+  const knockouts = matches.filter(m => m.stage === 'semi' || m.stage === 'final');
 
   return (
     <AdminLayout>
@@ -64,7 +131,7 @@ export default function AdminLogs() {
           <div>
             <p style={{ fontSize: 10, fontWeight: 700, color: '#c9a227', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6 }}>Admin Panel</p>
             <h1 style={{ fontSize: 24, fontWeight: 900, color: '#e8e8e8', letterSpacing: '-0.02em', marginBottom: 4 }}>Match Logs</h1>
-            <p style={{ fontSize: 13, color: '#4a6a82' }}>Automatic timeline of all match events</p>
+            <p style={{ fontSize: 13, color: '#4a6a82' }}>Automatic timeline of all match events · {matches.length} matches with logs</p>
           </div>
           <button onClick={load} disabled={refreshing} style={{
             padding: '9px 18px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.07)',
@@ -79,97 +146,17 @@ export default function AdminLogs() {
           </button>
         </div>
 
-        {/* Match summary cards */}
-        {matches.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginBottom: 28 }}>
-            {matches.map(m => (
-              <div key={m._id} style={{ background: '#0a1628', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '14px 16px' }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: '#e8e8e8', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {m.teamA?.name} <span style={{ color: '#4a6a82', fontWeight: 400 }}>vs</span> {m.teamB?.name}
-                </p>
-                <p style={{ fontSize: 11, color: '#4a6a82', marginBottom: 10 }}>{m.group} · {m.stage}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                  <div>
-                    <p style={{ fontSize: 9, color: '#4a6a82', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>Started</p>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: '#22c55e' }}>{fmt(m.startTime)}</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 9, color: '#4a6a82', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>Ended</p>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: m.endTime ? '#c9a227' : '#4a6a82' }}>{fmt(m.endTime)}</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 9, color: '#4a6a82', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>Duration</p>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: '#8b9db7' }}>{duration(m.startTime, m.endTime) || '—'}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Group A + Group B side by side */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: 20, marginBottom: 20 }}>
+          <LogTable matches={groupA} title="GROUP A LOGS" color="#c9a227" />
+          <LogTable matches={groupB} title="GROUP B LOGS" color="#60a5fa" />
+        </div>
+
+        {/* Knockout logs */}
+        {knockouts.length > 0 && (
+          <LogTable matches={knockouts} title="KNOCKOUT LOGS" color="#22c55e" />
         )}
 
-        {/* Log timeline */}
-        <div style={{
-          background: '#0a1628',
-          border: '1px solid rgba(201,162,39,0.15)',
-          borderRadius: 14, overflow: 'hidden',
-          boxShadow: '0 0 0 1px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.4)',
-        }}>
-          {/* Title bar */}
-          <div style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #0f1e35, #0a1628)', borderBottom: '1px solid rgba(201,162,39,0.1)', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ display: 'flex', gap: 5 }}>
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(239,68,68,0.55)' }} />
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,165,0,0.45)' }} />
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(34,197,94,0.45)' }} />
-            </div>
-            <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.08)' }} />
-            <p style={{ fontSize: 11, fontWeight: 600, color: '#4a6a82', letterSpacing: '0.08em' }}>EVENT LOG · {allLogs.length} ENTRIES</p>
-          </div>
-
-          {/* Column headers */}
-          <div style={{ display: 'grid', gridTemplateColumns: '100px 120px 1fr 160px', padding: '9px 20px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            {['Time', 'Event', 'Details', 'Match'].map((h, i) => (
-              <p key={h} style={{ fontSize: 10, fontWeight: 700, color: '#4a6a82', letterSpacing: '0.12em', textTransform: 'uppercase' }}>{h}</p>
-            ))}
-          </div>
-
-          {/* Log rows */}
-          <div style={{ maxHeight: 'calc(100vh - 420px)', overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'rgba(201,162,39,0.2) transparent' }}>
-            {allLogs.length === 0 ? (
-              <div style={{ padding: '48px 24px', textAlign: 'center', color: '#4a6a82', fontSize: 13 }}>
-                No logs yet. Logs are recorded automatically when matches start, complete innings, and finish.
-              </div>
-            ) : allLogs.map((log, i) => {
-              const es = EVENT_STYLES[log.event] || EVENT_STYLES.match_reset;
-              return (
-                <div key={i} style={{
-                  display: 'grid', gridTemplateColumns: '100px 120px 1fr 160px',
-                  padding: '12px 20px',
-                  borderBottom: i < allLogs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                  transition: 'background .15s',
-                }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <p style={{ fontSize: 12, color: '#8b9db7', fontFamily: 'monospace', alignSelf: 'center' }}>{fmt(log.timestamp)}</p>
-                  <div style={{ alignSelf: 'center' }}>
-                    <span style={{ fontSize: 9, fontWeight: 800, color: es.color, padding: '3px 8px', borderRadius: 4, background: es.bg, border: `1px solid ${es.border}`, letterSpacing: '0.1em' }}>
-                      {es.label}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 13, color: '#c8d4e0', alignSelf: 'center', paddingRight: 12 }}>{log.message}</p>
-                  <p style={{ fontSize: 11, color: '#4a6a82', alignSelf: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {log.match?.teamA?.name} vs {log.match?.teamB?.name}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Footer */}
-          <div style={{ padding: '9px 20px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.15)', fontSize: 11, color: '#4a6a82' }}>
-            Logs are recorded automatically · Auto-refreshes every 15 seconds
-          </div>
-        </div>
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </AdminLayout>

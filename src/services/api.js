@@ -6,7 +6,7 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 const getToken = () =>
-  typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
 
 const jsonHeaders = () => ({
   'Content-Type': 'application/json',
