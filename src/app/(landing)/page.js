@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 /* ─── static data ─────────────────────────────────────────────────────────── */
 const TEAMS = [
@@ -120,12 +121,14 @@ export default function LandingPage() {
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,162,39,0.3)'; e.currentTarget.style.color = '#c9a227'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#8b9db7'; }}
           >Admin</Link>
+          <div className="hidden sm:block" style={{ marginLeft: 4 }}>
+            <ThemeToggle />
+          </div>
           <Link href="/dashboard" style={{
             marginLeft: 4, fontSize: 13, fontWeight: 700, color: '#060e1a',
             background: '#c9a227', textDecoration: 'none',
             padding: '9px 22px', borderRadius: 8, transition: 'background .2s',
-          }}>Live Scores</Link>
-        </nav>
+          }}>Live Scores</Link>        </nav>
       </header>
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
@@ -211,8 +214,11 @@ export default function LandingPage() {
 
           {/* Stats strip */}
           <div className="landing-stats" style={{
-            display: 'inline-grid',
+            display: 'grid',
             gridTemplateColumns: `repeat(${STATS.length}, 1fr)`,
+            width: '100%',
+            maxWidth: 560,
+            margin: '0 auto',
             border: '1px solid rgba(201,162,39,0.12)',
             borderRadius: 16, overflow: 'hidden',
             background: 'rgba(10,22,40,0.6)',
@@ -220,7 +226,7 @@ export default function LandingPage() {
           }}>
             {STATS.map((s, i) => (
               <div key={s.label} style={{
-                padding: '16px 20px', textAlign: 'center',
+                padding: '14px 8px', textAlign: 'center',
                 borderRight: i < STATS.length - 1 ? '1px solid rgba(201,162,39,0.08)' : 'none',
               }}>
                 <p style={{ fontSize: 28, fontWeight: 900, color: '#c9a227', lineHeight: 1, letterSpacing: '-0.02em' }}>{s.value}</p>
