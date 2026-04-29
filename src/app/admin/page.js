@@ -57,7 +57,7 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-5xl font-black text-white mb-2 tracking-wider font-bebas">
+          <h1 className="text-3xl sm:text-5xl font-black text-white mb-2 tracking-wider font-bebas">
             ADMIN <span className="text-yellow-500">DASHBOARD</span>
           </h1>
           <p className="text-gray-400 text-sm mb-8 font-inter font-medium">Live tournament overview & quick actions</p>

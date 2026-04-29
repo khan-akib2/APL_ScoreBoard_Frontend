@@ -81,7 +81,7 @@ function DashboardContent() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Hero Header - PREMIUM */}
         <motion.div 
@@ -223,7 +223,7 @@ function DashboardContent() {
             {activeTab === 'upcoming' && <Section matches={upcoming} emptyText="No upcoming matches" emptySub="Check back later for scheduled fixtures" />}
             {activeTab === 'results' && <Section matches={completed} emptyText="No results yet" emptySub="Completed matches will appear here" />}
             {activeTab === 'standings' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px,1fr))', gap: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px,1fr))', gap: 20 }}>
                 <StandingsTable teams={standings.groupA} groupName="A" />
                 <StandingsTable teams={standings.groupB} groupName="B" />
               </div>
@@ -245,7 +245,7 @@ function Section({ matches, emptyText, emptySub }) {
     );
   }
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
       {matches.map(m => <MatchCard key={m._id} match={m} />)}
     </div>
   );

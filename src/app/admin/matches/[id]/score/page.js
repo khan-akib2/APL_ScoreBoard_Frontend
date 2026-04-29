@@ -249,7 +249,7 @@ export default function ScorePage() {
   return (
     <AdminLayout>
       {/* Full-width wrapper — no maxWidth, fills the main area */}
-      <div style={{ padding: '20px 24px', height: '100%', display: 'flex', flexDirection: 'column', gap: 14, boxSizing: 'border-box' }}>
+      <div className="admin-page-pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 14, boxSizing: 'border-box' }}>
 
         {/* ── Top bar: header + innings tabs + toast ── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
@@ -269,7 +269,7 @@ export default function ScorePage() {
               const disabled = n === 2 && !inn1Complete;
               return (
                 <button key={n} onClick={() => !disabled && handleInningsSwitch(n)} disabled={disabled} style={{
-                  padding: '9px 20px', borderRadius: 10, border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
+                  padding: '9px 14px', borderRadius: 10, border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
                   fontWeight: 700, fontSize: 12, fontFamily: 'inherit', transition: 'all .2s',
                   background: inningsNum === n ? `linear-gradient(135deg,#d4a82a,${C.gold})` : disabled ? 'rgba(255,255,255,0.02)' : C.bg2,
                   color: inningsNum === n ? C.bg0 : disabled ? C.dim : C.muted,
@@ -277,7 +277,7 @@ export default function ScorePage() {
                   outline: inningsNum !== n && !disabled ? `1px solid ${C.border}` : 'none',
                   opacity: disabled ? 0.4 : 1,
                 }}>
-                  Inn {n} — {n === 1 ? match.teamA?.name : match.teamB?.name}
+                  Inn {n}
                   {disabled && <span style={{ marginLeft: 6, fontSize: 10 }}>🔒</span>}
                 </button>
               );

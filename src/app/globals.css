@@ -407,6 +407,9 @@ html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; }
 .animate-delay-300 { animation-delay: 0.3s; }
 .animate-delay-400 { animation-delay: 0.4s; }
 
+/* ─── Admin page padding helper ─── */
+.admin-page-pad { padding: 28px 32px; }
+
 /* ─── Mobile responsive ─── */
 @media (max-width: 768px) {
 

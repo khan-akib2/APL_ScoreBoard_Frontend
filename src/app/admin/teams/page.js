@@ -78,7 +78,7 @@ export default function AdminTeams() {
         </div>
       )}
 
-      <div style={{ padding: '16px' }} className="admin-page-pad">
+      <div className="admin-page-pad">
 
         {/* ── Page header ── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>

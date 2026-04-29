@@ -91,7 +91,7 @@ export default function AdminPlayers() {
         </div>
       )}
 
-      <div style={{ padding: '16px' }} className="admin-page-pad">
+      <div className="admin-page-pad">
 
         {/* ── Page header ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>

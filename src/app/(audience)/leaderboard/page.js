@@ -22,7 +22,7 @@ export default function LeaderboardPage() {
 
   return (
     <UserLayout>
-      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '32px 20px' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '16px 16px' }}>
         <div style={{ maxWidth: 700, margin: '0 auto' }}>
 
           {/* Header */}
@@ -89,7 +89,7 @@ export default function LeaderboardPage() {
                           </span>
                         )}
                       </div>
-                      <div style={{ display: 'flex', gap: 16, fontSize: 12, color: 'var(--text-muted)' }}>
+                      <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'var(--text-muted)', flexWrap: 'wrap' }}>
                         <span>P <strong style={{ color: 'var(--text-secondary)' }}>{team.stats.played}</strong></span>
                         <span>W <strong style={{ color: 'var(--green)' }}>{team.stats.won}</strong></span>
                         <span>L <strong style={{ color: 'var(--red)' }}>{team.stats.lost}</strong></span>

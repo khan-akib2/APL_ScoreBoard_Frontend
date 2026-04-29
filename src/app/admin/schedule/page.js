@@ -143,7 +143,7 @@ export default function AdminSchedule() {
 
   return (
     <AdminLayout>
-      <div style={{ padding: '16px' }} className="admin-page-pad">
+      <div className="admin-page-pad">
 
         {/* ── Header ── */}
         <div style={{ marginBottom:28 }}>

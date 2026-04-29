@@ -155,7 +155,7 @@ export default function AdminMatches() {
       <div style={{ display:'flex', height:'100%', overflow:'hidden' }}>
 
         {/* LEFT — match list inside iframe */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+        <div className="admin-page-pad" style={{ flex: 1, overflowY: 'auto' }}>
 
           {/* Header */}
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20, flexWrap:'wrap', gap:12 }}>
@@ -295,7 +295,7 @@ export default function AdminMatches() {
 
         {/* RIGHT — sticky form panel (iframe style) */}
         {panel && (
-          <div style={{
+          <div className="matches-right-panel" style={{
             width: 360, flexShrink: 0,
             padding: '20px 16px',
             overflowY: 'auto',
@@ -418,6 +418,86 @@ export default function AdminMatches() {
           </div>
         )}
       </div>
+
+      {/* ── Mobile form modal (shown when panel is open on small screens) ── */}
+      {panel && (
+        <div className="md:hidden" style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(6px)', display:'flex', alignItems:'flex-end', justifyContent:'center', zIndex:55 }}>
+          <div style={{ background:'#0a1628', border:'1px solid rgba(201,162,39,0.18)', borderRadius:'16px 16px 0 0', width:'100%', maxHeight:'85vh', overflowY:'auto', padding:'20px 16px 32px' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
+              <p style={{ fontSize:15, fontWeight:800, color:'#e8e8e8' }}>{panel === 'create' ? 'New Match' : 'Edit Match'}</p>
+              <button onClick={() => setPanel(null)} style={{ width:28, height:28, borderRadius:8, border:'none', background:'rgba(255,255,255,0.06)', color:'#8b9db7', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <form onSubmit={handleSave} style={{ display:'flex', flexDirection:'column', gap:14 }}>
+              <Field label="Team A">
+                <select required value={form.teamA} onChange={e => setForm({...form, teamA: e.target.value})} style={sel}>
+                  <option value="">Select Team A</option>
+                  {teams.map(t => <option key={t._id} value={t._id}>{t.name} (Grp {t.group})</option>)}
+                </select>
+              </Field>
+              <Field label="Team B">
+                <select required value={form.teamB} onChange={e => setForm({...form, teamB: e.target.value})} style={sel}>
+                  <option value="">Select Team B</option>
+                  {teams.map(t => <option key={t._id} value={t._id}>{t.name} (Grp {t.group})</option>)}
+                </select>
+              </Field>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                <Field label="Stage">
+                  <select value={form.stage} onChange={e => { const s=e.target.value; setForm({...form, stage:s, group:s==='group'?'A':s==='semi'?'Semi Final 1':'Final', round:s==='group'?1:undefined}); }} style={sel}>
+                    <option value="group">Group</option>
+                    <option value="semi">Semi Final</option>
+                    <option value="final">Final</option>
+                  </select>
+                </Field>
+                <Field label={form.stage==='group'?'Group':form.stage==='semi'?'Semi':'Match'}>
+                  {form.stage==='group' ? (
+                    <select value={form.group} onChange={e => setForm({...form, group:e.target.value})} style={sel}>
+                      <option value="A">Group A</option>
+                      <option value="B">Group B</option>
+                    </select>
+                  ) : form.stage==='semi' ? (
+                    <select value={form.group} onChange={e => setForm({...form, group:e.target.value})} style={sel}>
+                      <option value="Semi Final 1">SF 1</option>
+                      <option value="Semi Final 2">SF 2</option>
+                    </select>
+                  ) : (
+                    <input value="Final" disabled style={{...sel, color:'#4a6a82', cursor:'default'}} />
+                  )}
+                </Field>
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                <Field label="Ground">
+                  <select value={form.ground} onChange={e => setForm({...form, ground:e.target.value})} style={sel}>
+                    <option value="Ground 1">Ground 1</option>
+                    <option value="Ground 2">Ground 2</option>
+                  </select>
+                </Field>
+                <Field label="Overs">
+                  <input type="number" min="1" max="50" value={form.overs} onChange={e => setForm({...form, overs:Number(e.target.value)})} style={{...sel, cursor:'text'}} />
+                </Field>
+              </div>
+              {form.stage==='group' && (
+                <Field label="Round">
+                  <input type="number" min="1" max="10" value={form.round} onChange={e => setForm({...form, round:Number(e.target.value)})} style={{...sel, cursor:'text'}} />
+                </Field>
+              )}
+              <Field label="Date">
+                <input type="date" value={form.date} onChange={e => setForm({...form, date:e.target.value})} style={{...sel, cursor:'text'}} />
+              </Field>
+              <button type="submit" disabled={saving} style={{
+                padding:'13px', borderRadius:9, border:'none', cursor:saving?'not-allowed':'pointer',
+                background:saving?'rgba(201,162,39,0.4)':'linear-gradient(135deg,#d4a82a,#c9a227)',
+                color:'#060e1a', fontWeight:800, fontSize:14, fontFamily:'inherit',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:7,
+              }}>
+                {saving && <div style={{ width:13, height:13, border:'2px solid rgba(6,14,26,0.25)', borderTopColor:'#060e1a', borderRadius:'50%', animation:'spin .7s linear infinite' }} />}
+                {saving ? 'Saving…' : panel === 'create' ? 'Create Match' : 'Update Match'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </AdminLayout>

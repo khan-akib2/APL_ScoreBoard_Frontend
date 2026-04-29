@@ -60,9 +60,9 @@ export default function MatchCard({ match }) {
             </p>
             {match.innings1 ? (
               <>
-                <p style={{ fontSize: 32, fontWeight: 900, color: 'var(--gold)', lineHeight: 1, fontFamily: 'var(--font-bebas)' }}>
+                <p style={{ fontSize: 'clamp(24px,7vw,32px)', fontWeight: 900, color: 'var(--gold)', lineHeight: 1, fontFamily: 'var(--font-bebas)' }}>
                   {match.innings1.runs}
-                  <span style={{ fontSize: 18, color: 'var(--text-muted)', fontWeight: 700 }}>/{match.innings1.wickets}</span>
+                  <span style={{ fontSize: 'clamp(14px,4vw,18px)', color: 'var(--text-muted)', fontWeight: 700 }}>/{match.innings1.wickets}</span>
                 </p>
                 <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>
                   ({match.innings1.overs}.{match.innings1.balls} ov)
@@ -85,9 +85,9 @@ export default function MatchCard({ match }) {
             </p>
             {match.innings2 ? (
               <>
-                <p style={{ fontSize: 32, fontWeight: 900, color: 'var(--gold)', lineHeight: 1, fontFamily: 'var(--font-bebas)' }}>
+                <p style={{ fontSize: 'clamp(24px,7vw,32px)', fontWeight: 900, color: 'var(--gold)', lineHeight: 1, fontFamily: 'var(--font-bebas)' }}>
                   {match.innings2.runs}
-                  <span style={{ fontSize: 18, color: 'var(--text-muted)', fontWeight: 700 }}>/{match.innings2.wickets}</span>
+                  <span style={{ fontSize: 'clamp(14px,4vw,18px)', color: 'var(--text-muted)', fontWeight: 700 }}>/{match.innings2.wickets}</span>
                 </p>
                 <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>
                   ({match.innings2.overs}.{match.innings2.balls} ov)

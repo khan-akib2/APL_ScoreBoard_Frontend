@@ -57,7 +57,7 @@ export default function AdminLogs() {
 
   return (
     <AdminLayout>
-      <div style={{ padding: '28px 32px' }}>
+      <div className="admin-page-pad">
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>

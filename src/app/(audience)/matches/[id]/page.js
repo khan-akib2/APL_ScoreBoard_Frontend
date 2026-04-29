@@ -51,7 +51,7 @@ export default function MatchDetailPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 2, background: 'var(--gold)', zIndex: 100, animation: 'syncBar 1s ease-in-out infinite' }} />
       )}
 
-      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '20px 24px 40px' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '16px 16px 40px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
           {/* ── Match Header ── */}
@@ -152,7 +152,7 @@ export default function MatchDetailPage() {
           )}
 
           {/* ── At the Crease + Bowling ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 16 }}>
             <Card>
               <Label>At the Crease</Label>
               <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>

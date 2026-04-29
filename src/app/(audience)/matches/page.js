@@ -25,7 +25,7 @@ export default function MatchesPage() {
   return (
     <UserLayout>
       <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '16px 16px' }}>
           <h1 style={{ fontSize: 32, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 28, letterSpacing: '-0.02em' }}>
             <span style={{ color: 'var(--gold)' }}>MATCHES</span>
           </h1>

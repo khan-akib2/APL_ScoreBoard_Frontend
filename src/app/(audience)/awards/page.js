@@ -33,7 +33,7 @@ export default function AwardsPage() {
 
   return (
     <UserLayout>
-      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '32px 20px' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '16px 16px' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
 
           {/* Header */}
