@@ -28,7 +28,12 @@ export default function AdminDashboard() {
     });
   }, [user]);
 
-  if (loading || !user) return null;
+  if (loading || !user) return (
+    <div style={{ minHeight: '100vh', background: '#060e1a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 28, height: 28, border: '2px solid rgba(201,162,39,0.2)', borderTopColor: '#c9a227', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
 
   const statCards = [
     { label: 'Teams', value: stats.teams, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },

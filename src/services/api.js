@@ -41,7 +41,10 @@ export const api = {
   post: (path, body) =>
     fetch(`${BASE_URL}${path}`, {
       method: 'POST',
-      headers: jsonHeaders(),
+      // Don't send auth token on login endpoint
+      headers: path === '/auth/login'
+        ? { 'Content-Type': 'application/json' }
+        : jsonHeaders(),
       body: JSON.stringify(body),
     })
       .then(handleResponse)

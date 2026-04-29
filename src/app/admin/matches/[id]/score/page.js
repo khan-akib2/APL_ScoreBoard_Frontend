@@ -94,6 +94,7 @@ export default function ScorePage() {
   const bowlerRef = useRef('');
   const inningsNumRef = useRef(1);
   const submittingRef = useRef(false);
+  const setPlayersTimerRef = useRef(null); // debounce timer for setPlayers
   const syncRefs = useCallback((s, ns, b, inn) => {
     strikerRef.current = s; nonStrikerRef.current = ns;
     bowlerRef.current = b; inningsNumRef.current = inn;
@@ -154,21 +155,23 @@ export default function ScorePage() {
     const s = os ?? strikerRef.current, ns = ons ?? nonStrikerRef.current;
     const b = ob ?? bowlerRef.current, inn = oi ?? inningsNumRef.current;
     if (!s || !ns || !b) return;
-    const res = await api.put(`/matches/${id}/players`, { inningsNum: inn, strikerId: s, nonStrikerId: ns, bowlerId: b });
-    if (res._id) {
-      setMatch(res);
-      // Sync striker/nonStriker IDs from backend response to keep stats in sync
-      const ui = inn === 1 ? res.innings1 : res.innings2;
-      if (ui?.currentBatsmen?.length > 0) {
-        const sk  = ui.currentBatsmen.find(bm => bm.isStriker);
-        const nsk = ui.currentBatsmen.find(bm => !bm.isStriker);
-        const skId  = sk?.player  ? (typeof sk.player  === 'object' ? sk.player._id  : sk.player)  : s;
-        const nskId = nsk?.player ? (typeof nsk.player === 'object' ? nsk.player._id : nsk.player) : ns;
-        setStrikerId(skId);    strikerRef.current    = skId;
-        setNonStrikerId(nskId); nonStrikerRef.current = nskId;
+    // Debounce: cancel any pending call and wait 300ms
+    if (setPlayersTimerRef.current) clearTimeout(setPlayersTimerRef.current);
+    setPlayersTimerRef.current = setTimeout(async () => {
+      const res = await api.put(`/matches/${id}/players`, { inningsNum: inn, strikerId: s, nonStrikerId: ns, bowlerId: b });
+      if (res._id) {
+        setMatch(res);
+        const ui = inn === 1 ? res.innings1 : res.innings2;
+        if (ui?.currentBatsmen?.length > 0) {
+          const sk  = ui.currentBatsmen.find(bm => bm.isStriker);
+          const nsk = ui.currentBatsmen.find(bm => !bm.isStriker);
+          const skId  = sk?.player  ? (typeof sk.player  === 'object' ? sk.player._id  : sk.player)  : s;
+          const nskId = nsk?.player ? (typeof nsk.player === 'object' ? nsk.player._id : nsk.player) : ns;
+          setStrikerId(skId);    strikerRef.current    = skId;
+          setNonStrikerId(nskId); nonStrikerRef.current = nskId;
+        }
       }
-      showMsg('Players updated', 'success');
-    }
+    }, 300);
   }, [id]);
 
   const submitBall = useCallback(async ({ runs = 0, isWicket = false, dismissalType = '', extras = '', extraRuns = 0 }) => {
@@ -261,18 +264,24 @@ export default function ScorePage() {
             <p style={{ fontSize: 11, color: C.dim, fontWeight: 600 }}>{match.group} · {match.ground}</p>
           </div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-            {[1, 2].map(n => (
-              <button key={n} onClick={() => handleInningsSwitch(n)} style={{
-                padding: '9px 20px', borderRadius: 10, border: 'none', cursor: 'pointer',
-                fontWeight: 700, fontSize: 12, fontFamily: 'inherit', transition: 'all .2s',
-                background: inningsNum === n ? `linear-gradient(135deg,#d4a82a,${C.gold})` : C.bg2,
-                color: inningsNum === n ? C.bg0 : C.muted,
-                boxShadow: inningsNum === n ? '0 4px 16px rgba(201,162,39,0.2)' : 'none',
-                outline: inningsNum !== n ? `1px solid ${C.border}` : 'none',
-              }}>
-                Inn {n} — {n === 1 ? match.teamA?.name : match.teamB?.name}
-              </button>
-            ))}
+            {[1, 2].map(n => {
+              const inn1Complete = match.innings1 && ((match.innings1.overs * 6 + match.innings1.balls) >= (match.overs || 6) * 6 || match.innings1.wickets >= 10);
+              const disabled = n === 2 && !inn1Complete;
+              return (
+                <button key={n} onClick={() => !disabled && handleInningsSwitch(n)} disabled={disabled} style={{
+                  padding: '9px 20px', borderRadius: 10, border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
+                  fontWeight: 700, fontSize: 12, fontFamily: 'inherit', transition: 'all .2s',
+                  background: inningsNum === n ? `linear-gradient(135deg,#d4a82a,${C.gold})` : disabled ? 'rgba(255,255,255,0.02)' : C.bg2,
+                  color: inningsNum === n ? C.bg0 : disabled ? C.dim : C.muted,
+                  boxShadow: inningsNum === n ? '0 4px 16px rgba(201,162,39,0.2)' : 'none',
+                  outline: inningsNum !== n && !disabled ? `1px solid ${C.border}` : 'none',
+                  opacity: disabled ? 0.4 : 1,
+                }}>
+                  Inn {n} — {n === 1 ? match.teamA?.name : match.teamB?.name}
+                  {disabled && <span style={{ marginLeft: 6, fontSize: 10 }}>🔒</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -293,7 +302,7 @@ export default function ScorePage() {
         )}
 
         {/* ── Two-column body ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, flex: 1, minHeight: 0 }}>
+        <div className="score-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, flex: 1, minHeight: 0 }}>
 
           {/* LEFT column — scoreboard + players */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto' }}>
@@ -315,6 +324,11 @@ export default function ScorePage() {
                 <p style={{ fontSize: 12, color: C.muted, marginTop: 2, fontWeight: 600 }}>
                   {oversDisplay(innings?.overs || 0, innings?.balls || 0)} / {TOTAL_OVERS}.0 ov
                 </p>
+                {inningsNum === 2 && match.innings1 && (
+                  <p style={{ fontSize: 11, color: C.gold, marginTop: 4, fontWeight: 700 }}>
+                    Target {match.innings1.runs + 1} · Need {Math.max(0, match.innings1.runs + 1 - (innings?.runs || 0))} off {ballsLeft(TOTAL_OVERS, innings?.overs || 0, innings?.balls || 0)} balls
+                  </p>
+                )}
               </div>
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontSize: 9, fontWeight: 700, color: C.dim, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 4 }}>Bowling</p>

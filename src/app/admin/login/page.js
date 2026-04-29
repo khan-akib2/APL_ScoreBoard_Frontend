@@ -45,6 +45,20 @@ export default function AdminLoginPage() {
         padding: '60px 56px',
       }}>
 
+        {/* Logo as large background watermark */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '85%', height: '85%',
+          backgroundImage: 'url(/logo.png)',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          opacity: 0.04,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }} />
+
         {/* Background grid */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -154,7 +168,7 @@ export default function AdminLoginPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <form onSubmit={handleSubmit} suppressHydrationWarning style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
             {/* Email */}
             <div>
@@ -170,6 +184,7 @@ export default function AdminLoginPage() {
                 </div>
                 <input
                   type="email" required autoComplete="email"
+                  suppressHydrationWarning
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="admin@example.com"
@@ -199,6 +214,7 @@ export default function AdminLoginPage() {
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'} required autoComplete="current-password"
+                  suppressHydrationWarning
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="••••••••••"
@@ -212,7 +228,9 @@ export default function AdminLoginPage() {
                   onFocus={e => e.target.style.borderColor = 'rgba(201,162,39,0.4)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.07)'}
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  suppressHydrationWarning
+                  style={{
                   position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
                   background: 'none', border: 'none', cursor: 'pointer', color: '#4a6a82',
                   padding: 0, display: 'flex', transition: 'color .2s',
@@ -231,7 +249,7 @@ export default function AdminLoginPage() {
             </div>
 
             {/* Submit */}
-            <button type="submit" disabled={loading} style={{
+            <button suppressHydrationWarning type="submit" disabled={loading} style={{
               marginTop: 8,
               width: '100%', padding: '14px',
               borderRadius: 10, border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
@@ -282,7 +300,7 @@ export default function AdminLoginPage() {
             </p>
           </div>
 
-          <Link href="/" style={{
+          <Link href="/" suppressHydrationWarning style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             fontSize: 12, color: '#4a6a82', textDecoration: 'none', fontWeight: 600,
             transition: 'color .2s',

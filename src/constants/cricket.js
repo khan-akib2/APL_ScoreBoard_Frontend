@@ -39,4 +39,5 @@ export const GROUNDS = ['Ground 1', 'Ground 2'];
 export const GROUPS = ['A', 'B'];
 
 export const DEFAULT_OVERS = 5;
+export const MAX_PLAYERS_PER_TEAM = 8;
 export const BALLS_PER_OVER = 6;

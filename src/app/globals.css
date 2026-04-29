@@ -406,3 +406,77 @@ html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; }
 .animate-delay-200 { animation-delay: 0.2s; }
 .animate-delay-300 { animation-delay: 0.3s; }
 .animate-delay-400 { animation-delay: 0.4s; }
+
+/* ─── Mobile responsive ─── */
+@media (max-width: 768px) {
+
+  /* Sidebar hidden on mobile — shown via overlay */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+  }
+
+  /* Admin pages: single column grids */
+  .admin-grid-2 { grid-template-columns: 1fr !important; }
+  .admin-grid-3 { grid-template-columns: 1fr !important; }
+  .admin-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Reduce padding on mobile */
+  .mobile-pad { padding: 16px !important; }
+
+  /* Score page two-column → single column */
+  .score-layout { grid-template-columns: 1fr !important; }
+
+  /* Matches page: hide right panel on mobile, show as bottom sheet */
+  .matches-right-panel { display: none !important; }
+
+  /* Tables: allow horizontal scroll */
+  .mobile-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Stat strips: 2 cols on mobile */
+  .stat-strip-4 { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Hide non-essential columns in tables */
+  .hide-mobile { display: none !important; }
+
+  /* Full width buttons on mobile */
+  .mobile-full { width: 100% !important; }
+
+  /* Reduce font sizes */
+  .mobile-h1 { font-size: clamp(20px, 5vw, 28px) !important; }
+  .mobile-score { font-size: clamp(36px, 10vw, 56px) !important; }
+
+  /* Admin page padding */
+  .admin-page-pad { padding: 16px !important; }
+
+  /* Schedule 3-col → 1-col */
+  .schedule-grid { grid-template-columns: 1fr !important; }
+
+  /* Leaderboard table: hide status column */
+  .lb-status-col { display: none !important; }
+
+  /* Landing page stats strip: 3 cols */
+  .landing-stats { grid-template-columns: repeat(3, 1fr) !important; display: grid !important; width: 100% !important; }
+
+  /* Landing page sections: reduce padding */
+  .landing-section { padding-top: 60px !important; padding-bottom: 60px !important; }
+
+  /* Landing navbar: reduce padding */
+  .landing-nav { padding: 0 16px !important; }
+
+  /* Awards grid: 1 col */
+  .awards-grid { grid-template-columns: 1fr !important; }
+
+  /* Global settings grid: 1 col */
+  .settings-grid { grid-template-columns: 1fr !important; }
+
+  /* Semis grid: 1 col */
+  .semis-grid { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .admin-grid-4 { grid-template-columns: 1fr !important; }
+  .stat-strip-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .landing-stats { grid-template-columns: repeat(2, 1fr) !important; }
+  .sidebar { width: 240px; min-width: 240px; }
+}

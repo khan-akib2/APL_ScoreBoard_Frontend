@@ -84,7 +84,7 @@ export default function LandingPage() {
     <div style={{ minHeight: '100vh', background: '#060e1a', color: '#e8e8e8', fontFamily: 'var(--font-inter)', overflowX: 'hidden' }}>
 
       {/* ── Navbar ─────────────────────────────────────────────────────────── */}
-      <header style={{
+      <header className="landing-nav" style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 32px', height: 64,
@@ -100,23 +100,30 @@ export default function LandingPage() {
         </div>
         <nav style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {[
-            { href: '/matches',              label: 'Matches'   },
+            { href: '/matches',                 label: 'Matches'   },
             { href: '/dashboard?tab=standings', label: 'Standings' },
           ].map(n => (
-            <Link key={n.href} href={n.href} style={{
+            <Link key={n.href} href={n.href} className="hidden sm:block" style={{
               fontSize: 13, color: '#8b9db7', textDecoration: 'none',
-              padding: '8px 16px', borderRadius: 8,
-              transition: 'color .2s',
+              padding: '8px 16px', borderRadius: 8, transition: 'color .2s',
             }}
               onMouseEnter={e => e.currentTarget.style.color = '#c9a227'}
               onMouseLeave={e => e.currentTarget.style.color = '#8b9db7'}
             >{n.label}</Link>
           ))}
+          <Link href="/admin/login" className="hidden sm:block" style={{
+            marginLeft: 4, fontSize: 13, fontWeight: 600, color: '#8b9db7',
+            textDecoration: 'none', padding: '9px 18px', borderRadius: 8,
+            border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)',
+            transition: 'all .2s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,162,39,0.3)'; e.currentTarget.style.color = '#c9a227'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#8b9db7'; }}
+          >Admin</Link>
           <Link href="/dashboard" style={{
-            marginLeft: 8, fontSize: 13, fontWeight: 700, color: '#060e1a',
+            marginLeft: 4, fontSize: 13, fontWeight: 700, color: '#060e1a',
             background: '#c9a227', textDecoration: 'none',
-            padding: '9px 22px', borderRadius: 8,
-            transition: 'background .2s',
+            padding: '9px 22px', borderRadius: 8, transition: 'background .2s',
           }}>Live Scores</Link>
         </nav>
       </header>
@@ -203,7 +210,7 @@ export default function LandingPage() {
           </div>
 
           {/* Stats strip */}
-          <div style={{
+          <div className="landing-stats" style={{
             display: 'inline-grid',
             gridTemplateColumns: `repeat(${STATS.length}, 1fr)`,
             border: '1px solid rgba(201,162,39,0.12)',
@@ -213,11 +220,11 @@ export default function LandingPage() {
           }}>
             {STATS.map((s, i) => (
               <div key={s.label} style={{
-                padding: '22px 28px', textAlign: 'center',
+                padding: '16px 20px', textAlign: 'center',
                 borderRight: i < STATS.length - 1 ? '1px solid rgba(201,162,39,0.08)' : 'none',
               }}>
-                <p style={{ fontSize: 30, fontWeight: 900, color: '#c9a227', lineHeight: 1, letterSpacing: '-0.02em' }}>{s.value}</p>
-                <p style={{ fontSize: 10, color: '#4a6a82', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 6 }}>{s.label}</p>
+                <p style={{ fontSize: 28, fontWeight: 900, color: '#c9a227', lineHeight: 1, letterSpacing: '-0.02em' }}>{s.value}</p>
+                <p style={{ fontSize: 9, color: '#4a6a82', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 6 }}>{s.label}</p>
               </div>
             ))}
           </div>
@@ -225,11 +232,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── Tournament Format ──────────────────────────────────────────────── */}
-      <section style={{ padding: '100px 24px', maxWidth: 1000, margin: '0 auto' }}>
+      <section className="landing-section" style={{ padding: '100px 24px', maxWidth: 1000, margin: '0 auto' }}>
         <SectionLabel>Tournament Format</SectionLabel>
         <SectionTitle>How the Tournament Works</SectionTitle>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 2, marginTop: 48, border: '1px solid rgba(201,162,39,0.1)', borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 2, marginTop: 48, border: '1px solid rgba(201,162,39,0.1)', borderRadius: 16, overflow: 'hidden' }}>
           {FORMAT.map((f, i) => (
             <div key={f.step} style={{
               padding: '40px 36px',
@@ -247,11 +254,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── Teams ─────────────────────────────────────────────────────────── */}
-      <section style={{ padding: '0 24px 100px', maxWidth: 1000, margin: '0 auto' }}>
+      <section className="landing-section" style={{ padding: '0 24px 100px', maxWidth: 1000, margin: '0 auto' }}>
         <SectionLabel>Competing Teams</SectionLabel>
         <SectionTitle>8 Teams. 2 Groups. 1 Trophy.</SectionTitle>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: 20, marginTop: 48 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginTop: 48 }}>
           {['A', 'B'].map((grp) => (
             <div key={grp} style={{
               border: '1px solid rgba(201,162,39,0.1)',
@@ -301,11 +308,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── Features ──────────────────────────────────────────────────────── */}
-      <section style={{ padding: '0 24px 100px', maxWidth: 1000, margin: '0 auto' }}>
+      <section className="landing-section" style={{ padding: '0 24px 100px', maxWidth: 1000, margin: '0 auto' }}>
         <SectionLabel>Platform Features</SectionLabel>
         <SectionTitle>Everything You Need to Follow the Action</SectionTitle>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: 16, marginTop: 48 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginTop: 48 }}>
           {FEATURES.map((f) => (
             <div key={f.title} style={{
               padding: '32px 28px',
@@ -332,9 +339,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA Banner ────────────────────────────────────────────────────── */}
-      <section style={{ padding: '0 24px 100px', maxWidth: 1000, margin: '0 auto' }}>
+      <section className="landing-section" style={{ padding: '0 24px 100px', maxWidth: 1000, margin: '0 auto' }}>
         <div style={{
-          borderRadius: 20, padding: '64px 48px', textAlign: 'center',
+          borderRadius: 20, padding: '48px 24px', textAlign: 'center',
           position: 'relative', overflow: 'hidden',
           border: '1px solid rgba(201,162,39,0.15)',
           background: 'linear-gradient(135deg, rgba(201,162,39,0.08) 0%, rgba(10,22,40,0.8) 60%)',
@@ -379,7 +386,7 @@ export default function LandingPage() {
       {/* ── Footer ────────────────────────────────────────────────────────── */}
       <footer style={{
         borderTop: '1px solid rgba(201,162,39,0.08)',
-        padding: '28px 32px',
+        padding: '24px 20px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
