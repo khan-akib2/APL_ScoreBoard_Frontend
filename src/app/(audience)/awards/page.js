@@ -12,6 +12,9 @@ const AWARD_META = {
   bestBowlerFemale:  { label: 'Best Bowler',             sub: 'Female · Most wickets in the tournament'},
   manOfSeries:       { label: 'Man of the Series',       sub: 'Best overall male performer'            },
   womanOfSeries:     { label: 'Woman of the Series',     sub: 'Best overall female performer'          },
+  mostSixes:         { label: 'Most Sixes',              sub: 'Most sixes hit in the tournament'       },
+  mostFours:         { label: 'Most Fours',              sub: 'Most fours hit in the tournament'       },
+  bestFielder:       { label: 'Best Fielder',            sub: 'Most catches taken in the tournament'   },
 };
 
 export default function AwardsPage() {
@@ -103,6 +106,9 @@ export default function AwardsPage() {
                           {award.teamName}
                           {award.runs    !== undefined && <span style={{ color: 'var(--gold)', marginLeft: 10, fontWeight: 700 }}>{award.runs} runs</span>}
                           {award.wickets !== undefined && <span style={{ color: 'var(--gold)', marginLeft: 10, fontWeight: 700 }}>{award.wickets} wickets</span>}
+                          {award.sixes   !== undefined && <span style={{ color: 'var(--gold)', marginLeft: 10, fontWeight: 700 }}>{award.sixes} sixes</span>}
+                          {award.fours   !== undefined && <span style={{ color: 'var(--gold)', marginLeft: 10, fontWeight: 700 }}>{award.fours} fours</span>}
+                          {award.catches !== undefined && <span style={{ color: 'var(--gold)', marginLeft: 10, fontWeight: 700 }}>{award.catches} catches</span>}
                         </p>
                       </div>
                     </div>

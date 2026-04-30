@@ -14,6 +14,9 @@ const AWARD_META = {
   bestBowlerFemale:  { label: 'Best Bowler (Female)',    icon: '⚡', sub: 'Most wickets taken by a female player'    },
   manOfSeries:       { label: 'Man of the Series',       icon: '⭐', sub: 'Best overall male performer'              },
   womanOfSeries:     { label: 'Woman of the Series',     icon: '⭐', sub: 'Best overall female performer'            },
+  mostSixes:         { label: 'Most Sixes',              icon: '6️⃣', sub: 'Most sixes hit in the tournament'         },
+  mostFours:         { label: 'Most Fours',              icon: '4️⃣', sub: 'Most fours hit in the tournament'         },
+  bestFielder:       { label: 'Best Fielder',            icon: '🧤', sub: 'Most catches taken in the tournament'     },
 };
 
 const AWARD_KEYS = Object.keys(AWARD_META);
@@ -207,6 +210,9 @@ export default function AdminAwards() {
                             {award.teamName}
                             {award.runs    !== undefined && <span style={{ color: C.gold, marginLeft: 8, fontWeight: 700 }}>{award.runs} runs</span>}
                             {award.wickets !== undefined && <span style={{ color: C.gold, marginLeft: 8, fontWeight: 700 }}>{award.wickets} wickets</span>}
+                            {award.sixes   !== undefined && <span style={{ color: C.gold, marginLeft: 8, fontWeight: 700 }}>{award.sixes} sixes</span>}
+                            {award.fours   !== undefined && <span style={{ color: C.gold, marginLeft: 8, fontWeight: 700 }}>{award.fours} fours</span>}
+                            {award.catches !== undefined && <span style={{ color: C.gold, marginLeft: 8, fontWeight: 700 }}>{award.catches} catches</span>}
                           </p>
                         </div>
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>

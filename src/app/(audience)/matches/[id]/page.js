@@ -197,8 +197,22 @@ export default function MatchDetailPage() {
           </div>
 
           {/* ── Scorecards ── */}
-          {match.innings1 && <Scorecard innings={match.innings1} label={`${match.teamA?.name} Batting`} bowlingTeam={match.teamB?.name} />}
-          {match.innings2 && <Scorecard innings={match.innings2} label={`${match.teamB?.name} Batting`} bowlingTeam={match.teamA?.name} />}
+          {/* Innings 1: TeamA batted, TeamB bowled */}
+          {match.innings1 && (
+            <ScorecardInnings
+              innings={match.innings1}
+              battingTeamName={match.teamA?.name}
+              bowlingTeamName={match.teamB?.name}
+            />
+          )}
+          {/* Innings 2: TeamB batted, TeamA bowled */}
+          {match.innings2 && (
+            <ScorecardInnings
+              innings={match.innings2}
+              battingTeamName={match.teamB?.name}
+              bowlingTeamName={match.teamA?.name}
+            />
+          )}
 
         </div>
       </div>
@@ -303,16 +317,20 @@ function BallDot({ ball }) {
   );
 }
 
-function Scorecard({ innings, label, bowlingTeam }) {
+function ScorecardInnings({ innings, battingTeamName, bowlingTeamName }) {
   if (!innings) return null;
   const thStyle = { padding: '10px 12px', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)' };
   const tdStyle = { padding: '12px', fontSize: 13, borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' };
 
   return (
     <Card>
-      <Label>{label}</Label>
-      <div style={{ overflowX: 'auto', marginTop: 14 }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* ── Batting team's batting ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gold)' }} />
+        <Label style={{ marginBottom: 0 }}>{battingTeamName} Batting</Label>
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', minWidth: 340, borderCollapse: 'collapse' }}>
           <thead>
             <tr>
               <th style={{ ...thStyle, textAlign: 'left' }}>Batsman</th>
@@ -330,6 +348,7 @@ function Scorecard({ innings, label, bowlingTeam }) {
                   {b.player?.name || 'Player'}
                   {b.status === 'out' && <span style={{ fontSize: 10, color: 'var(--red)', marginLeft: 6, fontWeight: 600 }}>out</span>}
                   {b.status === 'not out' && <span style={{ fontSize: 10, color: 'var(--green)', marginLeft: 6, fontWeight: 600 }}>not out</span>}
+                  {b.status === 'batting' && <span style={{ fontSize: 10, color: 'var(--gold)', marginLeft: 6, fontWeight: 600 }}>*</span>}
                 </td>
                 <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 900, fontFamily: 'var(--font-bebas)', fontSize: 15 }}>{b.runs}</td>
                 <td style={{ ...tdStyle, textAlign: 'right' }}>{b.balls}</td>
@@ -346,9 +365,13 @@ function Scorecard({ innings, label, bowlingTeam }) {
 
       <div style={{ height: 1, background: 'var(--border-subtle)', margin: '20px 0' }} />
 
-      <Label>{bowlingTeam} Bowling</Label>
-      <div style={{ overflowX: 'auto', marginTop: 14 }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* ── Bowling team's bowling ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--red)' }} />
+        <Label style={{ marginBottom: 0 }}>{bowlingTeamName} Bowling</Label>
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', minWidth: 340, borderCollapse: 'collapse' }}>
           <thead>
             <tr>
               <th style={{ ...thStyle, textAlign: 'left' }}>Bowler</th>

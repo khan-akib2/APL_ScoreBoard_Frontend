@@ -31,9 +31,11 @@ export default function StandingsPage() {
           </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            style={{ marginTop: 24, borderRadius: 12, padding: '16px 20px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', fontSize: 13, color: 'var(--text-muted)' }}
+            style={{ marginTop: 24, borderRadius: 12, padding: '16px 20px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', fontSize: 13, color: 'var(--text-muted)', display: 'flex', gap: 16, flexWrap: 'wrap' }}
           >
-            <p>P = Played · W = Won · L = Lost · Pts = Points · NRR = Net Run Rate</p>
+            <span>P = Played · W = Won · L = Lost · Pts = Points · NRR = Net Run Rate</span>
+            <span style={{ color: 'var(--green)', fontWeight: 700 }}>GW = Group Winner</span>
+            <span style={{ color: '#60a5fa', fontWeight: 700 }}>WC = Wildcard (Best NRR across groups)</span>
           </motion.div>
         </div>
       </div>

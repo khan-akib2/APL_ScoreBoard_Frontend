@@ -10,6 +10,7 @@ export default function AdminLeaderboard() {
   const router = useRouter();
   const [teams, setTeams] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [recalcing, setRecalcing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
@@ -23,6 +24,13 @@ export default function AdminLeaderboard() {
     if (Array.isArray(data)) setTeams(data);
     setLastUpdated(new Date());
     setRefreshing(false);
+  };
+
+  const recalcStats = async () => {
+    setRecalcing(true);
+    await api.post('/matches/recalc-stats', {});
+    setRecalcing(false);
+    fetch();
   };
 
   // Auto-refresh every 10s
@@ -60,6 +68,17 @@ export default function AdminLeaderboard() {
                 <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
               </svg>
               Refresh
+            </button>
+            <button onClick={recalcStats} disabled={recalcing} style={{
+              padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(201,162,39,0.25)',
+              background: 'rgba(201,162,39,0.08)', color: '#c9a227',
+              cursor: recalcing ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 12,
+              display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'inherit',
+            }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: recalcing ? 'spin .8s linear infinite' : 'none' }}>
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              {recalcing ? 'Recalculating…' : 'Recalc NRR & Stats'}
             </button>
           </div>
         </div>
@@ -110,7 +129,10 @@ export default function AdminLeaderboard() {
           {teams.length === 0 ? (
             <div style={{ padding: '48px 24px', textAlign: 'center', color: '#4a6a82', fontSize: 13 }}>No data yet</div>
           ) : teams.map((team, i) => {
-            const isTop2 = i < 2;
+            const q = team.qualification; // 'winner' | 'wildcard' | 'eliminated'
+            const isWinner   = q === 'winner';
+            const isWildcard = q === 'wildcard';
+            const isOut      = q === 'eliminated';
             const isFirst = i === 0;
             return (
               <div key={team._id} style={{
@@ -171,10 +193,12 @@ export default function AdminLeaderboard() {
 
                 {/* Status */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {isTop2 ? (
-                    <span style={{ fontSize: 9, fontWeight: 800, color: '#22c55e', padding: '3px 8px', borderRadius: 4, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', letterSpacing: '0.08em' }}>QUALIFIED</span>
+                  {isWinner ? (
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#22c55e', padding: '3px 8px', borderRadius: 4, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', letterSpacing: '0.08em' }}>GROUP WINNER</span>
+                  ) : isWildcard ? (
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#60a5fa', padding: '3px 8px', borderRadius: 4, background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.3)', letterSpacing: '0.08em' }}>WILDCARD</span>
                   ) : (
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#4a6a82', padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', letterSpacing: '0.06em' }}>COMPETING</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: '#4a6a82', padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', letterSpacing: '0.06em' }}>ELIMINATED</span>
                   )}
                 </div>
               </div>
@@ -184,7 +208,7 @@ export default function AdminLeaderboard() {
           {/* Footer */}
           <div style={{ padding: '9px 20px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.15)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6, fontSize: 11, color: '#4a6a82', minWidth: 560 }}>
             <span>Win = 2 pts · Loss = 0 pts · NRR tiebreaker</span>
-            <span>Top 2 from each group qualify for Semi Finals</span>
+            <span>GW = Group Winner · WC = Wildcard (Best NRR across groups)</span>
           </div>
           </div>{/* end scroll wrapper */}
         </div>

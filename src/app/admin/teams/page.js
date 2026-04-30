@@ -18,7 +18,7 @@ export default function AdminTeams() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [teams, setTeams]           = useState([]);
-  const [form, setForm]             = useState({ name: '', group: 'A' });
+  const [form, setForm]             = useState({ name: '', group: 'A', captainName: '', captainEmail: '' });
   const [msg, setMsg]               = useState({ text: '', type: 'success' });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -40,7 +40,7 @@ export default function AdminTeams() {
     setSubmitting(true);
     const res = await api.post('/teams', form);
     setSubmitting(false);
-    if (res._id) { showMsg(`${res.name} added to Group ${res.group}`); setForm({ name: '', group: form.group }); loadTeams(); }
+    if (res._id) { showMsg(`${res.name} added to Group ${res.group}`); setForm({ name: '', group: form.group, captainName: '', captainEmail: '' }); loadTeams(); }
     else showMsg(res.message || 'Error adding team', 'error');
   };
 
@@ -126,6 +126,35 @@ export default function AdminTeams() {
               placeholder="Enter team name..."
               style={{
                 flex: '1 1 160px', minWidth: 0, padding: '11px 16px',
+                background: C.bg0, border: `1px solid ${C.border}`,
+                borderRadius: 9, color: C.text, fontSize: 14, outline: 'none',
+                fontFamily: 'inherit', transition: 'border-color .2s',
+              }}
+              onFocus={e => e.target.style.borderColor = 'rgba(201,162,39,0.4)'}
+              onBlur={e => e.target.style.borderColor = C.border}
+            />
+            <input
+              suppressHydrationWarning
+              value={form.captainName || ''}
+              onChange={e => setForm({ ...form, captainName: e.target.value })}
+              placeholder="Captain name"
+              style={{
+                flex: '1 1 140px', minWidth: 0, padding: '11px 16px',
+                background: C.bg0, border: `1px solid ${C.border}`,
+                borderRadius: 9, color: C.text, fontSize: 14, outline: 'none',
+                fontFamily: 'inherit', transition: 'border-color .2s',
+              }}
+              onFocus={e => e.target.style.borderColor = 'rgba(201,162,39,0.4)'}
+              onBlur={e => e.target.style.borderColor = C.border}
+            />
+            <input
+              suppressHydrationWarning
+              type="email"
+              value={form.captainEmail || ''}
+              onChange={e => setForm({ ...form, captainEmail: e.target.value })}
+              placeholder="Captain email (for winner notification)"
+              style={{
+                flex: '2 1 200px', minWidth: 0, padding: '11px 16px',
                 background: C.bg0, border: `1px solid ${C.border}`,
                 borderRadius: 9, color: C.text, fontSize: 14, outline: 'none',
                 fontFamily: 'inherit', transition: 'border-color .2s',
@@ -236,6 +265,7 @@ export default function AdminTeams() {
                         <p style={{ fontSize: 14, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</p>
                         <p style={{ fontSize: 11, color: C.dim, marginTop: 2 }}>
                           {t.players?.length || 0} player{t.players?.length !== 1 ? 's' : ''} · P:{t.stats?.played || 0} W:{t.stats?.won || 0} L:{t.stats?.lost || 0}
+                          {t.captainEmail && <span style={{ color: 'rgba(201,162,39,0.6)', marginLeft: 6 }}>· ✉ {t.captainEmail}</span>}
                         </p>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>

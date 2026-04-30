@@ -44,7 +44,9 @@ export default function LeaderboardPage() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {teams.map((team, i) => {
-                const isTop3 = i < 3;
+                const q = team.qualification;
+                const isWinner   = q === 'winner';
+                const isWildcard = q === 'wildcard';
                 const isFirst = i === 0;
                 return (
                   <div key={team._id} style={{
@@ -54,7 +56,7 @@ export default function LeaderboardPage() {
                     background: isFirst
                       ? 'linear-gradient(135deg, rgba(201,162,39,0.12), rgba(201,162,39,0.04))'
                       : 'var(--bg-card)',
-                    border: `1px solid ${isFirst ? 'rgba(201,162,39,0.3)' : isTop3 ? 'rgba(201,162,39,0.12)' : 'var(--border-subtle)'}`,
+                    border: `1px solid ${isFirst ? 'rgba(201,162,39,0.3)' : (isWinner || isWildcard) ? 'rgba(201,162,39,0.12)' : 'var(--border-subtle)'}`,
                     transition: 'transform .2s',
                     position: 'relative',
                     overflow: 'hidden',
@@ -83,9 +85,14 @@ export default function LeaderboardPage() {
                         <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', padding: '2px 7px', borderRadius: 4, background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', letterSpacing: '0.08em', flexShrink: 0 }}>
                           GRP {team.group}
                         </span>
-                        {i < 2 && (
+                        {isWinner && (
                           <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--green)', padding: '2px 7px', borderRadius: 4, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', letterSpacing: '0.08em', flexShrink: 0 }}>
-                            QUALIFIED
+                            GW
+                          </span>
+                        )}
+                        {isWildcard && (
+                          <span style={{ fontSize: 9, fontWeight: 800, color: '#60a5fa', padding: '2px 7px', borderRadius: 4, background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.3)', letterSpacing: '0.08em', flexShrink: 0 }}>
+                            WC
                           </span>
                         )}
                       </div>
@@ -117,12 +124,14 @@ export default function LeaderboardPage() {
           )}
 
           {/* Legend */}
-          <div style={{ marginTop: 24, padding: '14px 20px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', display: 'flex', gap: 20, flexWrap: 'wrap', fontSize: 12, color: 'var(--text-muted)' }}>
+          <div style={{ marginTop: 24, padding: '14px 20px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 12, color: 'var(--text-muted)' }}>
             <span>P = Played</span>
             <span>W = Won</span>
             <span>L = Lost</span>
             <span>Pts = Points (Win = 2)</span>
             <span>NRR = Net Run Rate</span>
+            <span style={{ color: 'var(--green)', fontWeight: 700 }}>GW = Group Winner</span>
+            <span style={{ color: '#60a5fa', fontWeight: 700 }}>WC = Wildcard (Best NRR)</span>
           </div>
         </div>
       </div>
