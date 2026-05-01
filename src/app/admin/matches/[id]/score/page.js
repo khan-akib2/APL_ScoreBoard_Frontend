@@ -650,9 +650,6 @@ export default function ScorePage() {
         )}
 
         {/* ── Extras Modal ── */}
-<<<<<<< HEAD
-        {extrasModal && null /* extras modal removed — NB/Wide are now direct buttons */}
-=======
         {extrasModal && (() => {
           const isNB = extrasType !== 'wd';
           // NB: extrasRuns IS the total; Wide: extrasRuns is extra, +1 penalty on top
@@ -715,7 +712,6 @@ export default function ScorePage() {
           </div>
           );
         })()}
->>>>>>> a43f4b92ead7177deb5049d80b0a64d8b74f236a
 
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
