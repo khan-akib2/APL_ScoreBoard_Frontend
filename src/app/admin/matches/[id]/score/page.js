@@ -29,13 +29,14 @@ const C = {
   dim:    '#4a6a82',
 };
 
-const Btn = ({ onClick, children, variant = 'default', size = 'md', style: extra = {} }) => {
+const Btn = ({ onClick, children, variant = 'default', size = 'md', style: extra = {}, disabled = false }) => {
   const base = {
-    border: 'none', cursor: 'pointer', fontWeight: 800,
+    border: 'none', cursor: disabled ? 'not-allowed' : 'pointer', fontWeight: 800,
     borderRadius: 10, fontFamily: 'inherit',
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-    touchAction: 'manipulation', // faster tap on mobile
+    touchAction: 'manipulation',
     WebkitTapHighlightColor: 'transparent',
+    opacity: disabled ? 0.45 : 1,
   };
   const sizes = { sm: { height: 40, fontSize: 12 }, md: { height: 52, fontSize: 14 }, lg: { height: 60, fontSize: 18 } };
   const variants = {
@@ -48,7 +49,7 @@ const Btn = ({ onClick, children, variant = 'default', size = 'md', style: extra
     six:     { background: 'rgba(201,162,39,0.15)', color: C.gold, outline: `1px solid rgba(201,162,39,0.35)` },
   };
   return (
-    <button onClick={onClick} style={{ ...base, ...sizes[size], ...variants[variant], ...extra }}>
+    <button onClick={disabled ? undefined : onClick} style={{ ...base, ...sizes[size], ...variants[variant], ...extra }}>
       {children}
     </button>
   );
@@ -103,8 +104,11 @@ export default function ScorePage() {
   }, []);
   const [wicketModal, setWicketModal] = useState(false);
   const [wicketType, setWicketType] = useState('bowled');
+  const [fielderId, setFielderId] = useState('');
   const [pendingRuns, setPendingRuns] = useState(0);
   const [pendingExtras, setPendingExtras] = useState('');
+
+  const FIELDER_DISMISSALS = ['caught', 'stumped', 'run out'];
   const [extrasModal, setExtrasModal] = useState(false);
   const [extrasType, setExtrasType] = useState('');
   const [extrasRuns, setExtrasRuns] = useState(0);
@@ -176,7 +180,7 @@ export default function ScorePage() {
     }, 150);
   }, [id]);
 
-  const submitBall = useCallback(async ({ runs = 0, isWicket = false, dismissalType = '', extras = '', extraRuns = 0 }) => {
+  const submitBall = useCallback(async ({ runs = 0, isWicket = false, dismissalType = '', extras = '', extraRuns = 0, fielderId = '', fielderName = '' }) => {
     const s = strikerRef.current, ns = nonStrikerRef.current;
     const b = bowlerRef.current, inn = inningsNumRef.current;
     if (!s || !ns || !b) { showMsg('Select all players first', 'error'); return; }
@@ -185,7 +189,8 @@ export default function ScorePage() {
     const res = await api.post(`/matches/${id}/ball`, {
       inningsNum: inn, runs, isWicket, dismissalType, extras, extraRuns,
       batsmanId: s, bowlerId: b, strikerId: s, nonStrikerId: ns,
-      commentary: buildCommentary(runs, isWicket, dismissalType, extras, extraRuns),
+      fielderId, fielderName,
+      commentary: buildCommentary(runs, isWicket, dismissalType, extras, extraRuns, fielderName),
     });
     submittingRef.current = false;
     if (res._id) {
@@ -223,9 +228,19 @@ export default function ScorePage() {
     await handleSetPlayers(ns, s, bowlerRef.current, inningsNumRef.current);
   };
 
-  const openWicket = (runs = 0, extras = '') => { setPendingRuns(runs); setPendingExtras(extras); setWicketType('bowled'); setWicketModal(true); };
-  const confirmWicket = () => { setWicketModal(false); submitBall({ runs: pendingRuns, isWicket: true, dismissalType: wicketType, extras: pendingExtras }); };
-  const openExtrasModal = (type) => { setExtrasType(type); setExtrasRuns(0); setExtrasModal(true); };
+  const openWicket = (runs = 0, extras = '') => { setPendingRuns(runs); setPendingExtras(extras); setWicketType('bowled'); setFielderId(''); setWicketModal(true); };
+  const confirmWicket = () => {
+    const needsFielder = FIELDER_DISMISSALS.includes(wicketType);
+    const fielder = needsFielder ? bowlingPlayers.find(p => p._id === fielderId) : null;
+    setWicketModal(false);
+    submitBall({
+      runs: pendingRuns, isWicket: true, dismissalType: wicketType,
+      extras: pendingExtras,
+      fielderId: fielder?._id || '',
+      fielderName: fielder?.name || '',
+    });
+  };
+  const openExtrasModal = (type) => { setExtrasType(type); setExtrasRuns(type !== 'wd' ? 1 : 0); setExtrasModal(true); };
   const confirmExtras = () => { setExtrasModal(false); submitBall({ runs: extrasRuns, extras: extrasType }); };
 
   if (!match) return (
@@ -566,7 +581,7 @@ export default function ScorePage() {
         {/* ── Wicket Modal ── */}
         {wicketModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, backdropFilter: 'blur(4px)' }}>
-            <div style={{ background: C.bg1, border: '1px solid rgba(239,68,68,0.4)', borderRadius: 16, padding: 24, maxWidth: 380, width: '100%', margin: '0 16px' }}>
+            <div style={{ background: C.bg1, border: '1px solid rgba(239,68,68,0.4)', borderRadius: 16, padding: 24, maxWidth: 400, width: '100%', margin: '0 16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: C.redDim, border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
@@ -576,9 +591,11 @@ export default function ScorePage() {
                   <p style={{ fontSize: 11, color: C.dim }}>Select dismissal type</p>
                 </div>
               </div>
+
+              {/* Dismissal type grid */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
                 {DISMISSAL_TYPES.map(type => (
-                  <button key={type} onClick={() => setWicketType(type)} style={{
+                  <button key={type} onClick={() => { setWicketType(type); setFielderId(''); }} style={{
                     padding: '9px 12px', borderRadius: 9, border: 'none', cursor: 'pointer',
                     fontWeight: 700, fontSize: 12, fontFamily: 'inherit', textTransform: 'capitalize',
                     background: wicketType === type ? C.red : C.bg2,
@@ -588,43 +605,113 @@ export default function ScorePage() {
                   }}>{type}</button>
                 ))}
               </div>
+
+              {/* Fielder select — shown for caught / stumped / run out */}
+              {FIELDER_DISMISSALS.includes(wicketType) && (
+                <div style={{ marginBottom: 20 }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: C.dim, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
+                    {wicketType === 'caught' ? '🧤 Caught by' : wicketType === 'stumped' ? '🧤 Stumped by' : '🏃 Run out by'}
+                  </p>
+                  <select
+                    value={fielderId}
+                    onChange={e => setFielderId(e.target.value)}
+                    style={{
+                      width: '100%', padding: '10px 14px', borderRadius: 9,
+                      background: C.bg0, border: `1px solid ${fielderId ? 'rgba(239,68,68,0.5)' : C.border}`,
+                      color: fielderId ? C.text : C.dim, fontSize: 13, fontWeight: 600,
+                      outline: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    <option value="">— Select fielder —</option>
+                    {bowlingPlayers.map(p => (
+                      <option key={p._id} value={p._id}>{p.name}{p.role === 'wicketkeeper' ? ' (WK)' : ''}</option>
+                    ))}
+                  </select>
+                  {!fielderId && (
+                    <p style={{ fontSize: 10, color: 'rgba(239,68,68,0.7)', marginTop: 5, fontWeight: 600 }}>
+                      Fielder required for this dismissal type
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div style={{ display: 'flex', gap: 10 }}>
                 <Btn onClick={() => setWicketModal(false)} variant="ghost" size="sm" style={{ flex: 1 }}>Cancel</Btn>
-                <Btn onClick={confirmWicket} variant="red" size="sm" style={{ flex: 1 }}>Confirm Wicket</Btn>
+                <Btn
+                  onClick={confirmWicket}
+                  variant="red" size="sm" style={{ flex: 1 }}
+                  disabled={FIELDER_DISMISSALS.includes(wicketType) && !fielderId}
+                >
+                  Confirm Wicket
+                </Btn>
               </div>
             </div>
           </div>
         )}
 
         {/* ── Extras Modal ── */}
-        {extrasModal && (
+        {extrasModal && (() => {
+          const isNB = extrasType !== 'wd';
+          // NB: extrasRuns IS the total; Wide: extrasRuns is extra, +1 penalty on top
+          const totalWillAdd = isNB ? extrasRuns : 1 + extrasRuns;
+          return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, backdropFilter: 'blur(4px)' }}>
             <div style={{ background: C.bg1, border: '1px solid rgba(249,115,22,0.4)', borderRadius: 16, padding: 24, maxWidth: 360, width: '100%', margin: '0 16px' }}>
-              <div style={{ marginBottom: 18 }}>
+              <div style={{ marginBottom: 16 }}>
                 <p style={{ fontSize: 15, fontWeight: 800, color: C.orange, marginBottom: 4 }}>
                   {extrasType === 'wd' ? 'Wide' : extrasType === 'nb' ? 'No Ball' : extrasType === 'nb-ff' ? 'Front Foot No Ball' : extrasType === 'nb-2b' ? '2 Bounce No Ball' : 'Waist High Full Toss NB'}
                 </p>
-                <p style={{ fontSize: 12, color: C.dim }}>+1 penalty added automatically. Select additional runs:</p>
+                {isNB
+                  ? <p style={{ fontSize: 12, color: C.dim }}>Select total runs scored off this delivery:</p>
+                  : <p style={{ fontSize: 12, color: C.dim }}>+1 penalty is automatic. Select extra runs if batsman ran:</p>
+                }
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 20 }}>
-                {[0,1,2,3,4,5,6].map(r => (
-                  <button key={r} onClick={() => setExtrasRuns(r)} style={{
-                    padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
-                    fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
-                    background: extrasRuns === r ? C.orange : C.bg2,
-                    color: extrasRuns === r ? C.bg0 : C.text,
-                    outline: extrasRuns !== r ? `1px solid ${C.border}` : 'none',
-                    transition: 'all .15s',
-                  }}>{r}</button>
-                ))}
+
+              {isNB ? (
+                /* No Ball: buttons 1–7 are the TOTAL runs added to the score */
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 12 }}>
+                  {[1,2,3,4,5,6,7].map(r => (
+                    <button key={r} onClick={() => setExtrasRuns(r)} style={{
+                      padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
+                      fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
+                      background: extrasRuns === r ? C.orange : C.bg2,
+                      color: extrasRuns === r ? C.bg0 : C.text,
+                      outline: extrasRuns !== r ? `1px solid ${C.border}` : 'none',
+                      transition: 'all .15s',
+                    }}>{r}</button>
+                  ))}
+                </div>
+              ) : (
+                /* Wide: buttons show additional runs (0–6) */
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 12 }}>
+                  {[0,1,2,3,4,5,6].map(r => (
+                    <button key={r} onClick={() => setExtrasRuns(r)} style={{
+                      padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
+                      fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
+                      background: extrasRuns === r ? C.orange : C.bg2,
+                      color: extrasRuns === r ? C.bg0 : C.text,
+                      outline: extrasRuns !== r ? `1px solid ${C.border}` : 'none',
+                      transition: 'all .15s',
+                    }}>{r}</button>
+                  ))}
+                </div>
+              )}
+
+              {/* Total preview */}
+              <div style={{ marginBottom: 16, padding: '8px 12px', background: C.bg0, borderRadius: 8, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <span style={{ fontSize: 12, color: C.dim }}>Will add</span>
+                <span style={{ fontSize: 20, fontWeight: 900, color: C.orange }}>{totalWillAdd}</span>
+                <span style={{ fontSize: 12, color: C.dim }}>run{totalWillAdd !== 1 ? 's' : ''} to the score</span>
               </div>
+
               <div style={{ display: 'flex', gap: 10 }}>
                 <Btn onClick={() => setExtrasModal(false)} variant="ghost" size="sm" style={{ flex: 1 }}>Cancel</Btn>
-                <Btn onClick={confirmExtras} variant="orange" size="sm" style={{ flex: 1 }}>Confirm</Btn>
+                <Btn onClick={confirmExtras} variant="orange" size="sm" style={{ flex: 1 }}>Confirm ({totalWillAdd} runs)</Btn>
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
 
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>

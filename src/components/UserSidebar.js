@@ -10,7 +10,9 @@ const navItems = [
   { href: '/dashboard?tab=upcoming', label: 'Upcoming',    tab: 'upcoming',  icon: 'calendar' },
   { href: '/dashboard?tab=results',  label: 'Results',     tab: 'results',   icon: 'check'    },
   { href: '/matches',                label: 'All Matches', icon: 'clock'    },
+  { href: '/summary',                label: 'Summary',     icon: 'summary'  },
   { href: '/leaderboard',            label: 'Leaderboard', icon: 'trophy'   },
+  { href: '/history',                label: 'History',     icon: 'history'  },
   { href: '/awards',                 label: 'Awards',      icon: 'award'    },
   { href: '/dashboard?tab=standings',label: 'Standings',   tab: 'standings', icon: 'bar'      },
 ];
@@ -23,6 +25,8 @@ const icons = {
   trophy: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
   bar: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
   award: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>,
+  summary: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
+  history: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>,
 };
 
 export default function UserSidebar({ onClose }) {
