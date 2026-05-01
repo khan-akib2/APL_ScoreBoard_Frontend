@@ -59,12 +59,15 @@ export function economyRate(runs, overs, balls) {
 
 /**
  * Label for a ball badge in the over timeline.
+ * Display as NB+N where N = total runs scored on the delivery.
  */
 export function ballLabel(ball) {
   if (!ball) return '·';
   if (ball.isWicket) return 'W';
   if (ball.extras === 'wd') return 'Wd';
-  if (ball.extras === 'nb' || ball.extras?.startsWith('nb-')) return 'Nb';
+  if (ball.extras === 'nb' || ball.extras?.startsWith('nb-')) {
+    return `NB+${ball.runs || 0}`;
+  }
   if (ball.extras === 'b')  return `B${ball.runs > 1 ? ball.runs : ''}`;
   if (ball.extras === 'lb') return `Lb${ball.runs > 1 ? ball.runs : ''}`;
   if (ball.extras?.startsWith('ot')) return `${ball.runs}+${ball.extras.replace('ot', '')}`;
@@ -77,19 +80,27 @@ export function ballLabel(ball) {
 export function ballStyle(ball) {
   if (!ball) return { background: '#0a1628', color: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.05)' };
   if (ball.isWicket) return { background: 'rgba(239,68,68,0.2)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.4)' };
+  // No-ball and wide always orange (check before run-value checks, since NB penalty = 6 runs)
+  if (ball.extras === 'wd' || ball.extras?.startsWith('nb')) return { background: 'rgba(255,165,0,0.15)', color: '#ffa500', border: '1px solid rgba(255,165,0,0.3)' };
   if (ball.runs >= 6 || ball.extras?.startsWith('ot')) return { background: 'rgba(243,197,112,0.2)', color: '#F3C570', border: '1px solid rgba(243,197,112,0.4)' };
   if (ball.runs === 4) return { background: 'rgba(161,189,203,0.2)', color: '#8aacbf', border: '1px solid rgba(161,189,203,0.4)' };
-  if (ball.extras === 'wd' || ball.extras?.startsWith('nb')) return { background: 'rgba(255,165,0,0.15)', color: '#ffa500', border: '1px solid rgba(255,165,0,0.3)' };
   return { background: '#0a1628', color: '#ffffff', border: '1px solid rgba(255,255,255,0.1)' };
 }
 
 /**
  * Build commentary string for a delivery.
+ * No-ball = 6 penalty runs (custom tournament rule).
  */
-export function buildCommentary(runs, isWicket, dismissalType, extras, extraRuns) {
-  if (isWicket) return `WICKET! ${dismissalType}`;
+export function buildCommentary(runs, isWicket, dismissalType, extras, extraRuns, fielderName = '') {
+  if (isWicket) {
+    if (fielderName && ['caught', 'stumped', 'run out'].includes(dismissalType)) {
+      const prefix = dismissalType === 'caught' ? 'c' : dismissalType === 'stumped' ? 'st' : 'run out';
+      return `WICKET! ${prefix} ${fielderName}`;
+    }
+    return `WICKET! ${dismissalType}`;
+  }
   if (extras === 'wd')  return `Wide${runs > 0 ? ` +${runs}` : ''}`;
-  if (extras?.startsWith('nb')) return `No Ball${runs > 0 ? ` +${runs}` : ''}`;
+  if (extras?.startsWith('nb')) return `No Ball +${runs}`;
   if (extras === 'b')   return `Bye ${runs}`;
   if (extras === 'lb')  return `Leg Bye ${runs}`;
   if (extras?.startsWith('ot')) return `${runs} + ${extraRuns} Overthrow`;
