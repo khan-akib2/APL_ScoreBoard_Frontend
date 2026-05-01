@@ -390,6 +390,11 @@ export default function ScorePage() {
             <div style={{ padding: '10px 20px', borderTop: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', background: 'rgba(0,0,0,0.15)' }}>
               <p style={{ fontSize: 9, fontWeight: 700, color: C.dim, letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4, whiteSpace: 'nowrap' }}>
                 Over {prevOverNum + 1} · <span style={{ color: C.muted }}>{prevOverRuns} runs</span>
+                {(() => {
+                  const bid = prevOverBalls[0]?.bowler?.toString();
+                  const be = innings?.bowling?.find(b => b.player?._id?.toString() === bid || b.player?.toString() === bid);
+                  return be?.player?.name ? <span style={{ color: C.gold, marginLeft: 6 }}>· {be.player.name.split(' ')[0]}</span> : null;
+                })()}
               </p>
               {prevOverBalls.map((ball, i) => (
                 <div key={i} style={{ width: 28, height: 28, borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, fontFamily: 'var(--font-bebas)', opacity: 0.75, ...ballStyle(ball) }}>
@@ -555,9 +560,16 @@ export default function ScorePage() {
                   const overBalls = (innings.ballByBall || []).filter(b => b.over === i);
                   const overRuns = overBalls.reduce((sum, b) => sum + (b.runs || 0) + (b.extras ? 1 : 0), 0);
                   const hasWicket = overBalls.some(b => b.isWicket);
+                  // Get bowler name from the first ball of this over
+                  const bowlerIdOfOver = overBalls[0]?.bowler?.toString();
+                  const bowlerEntry = innings.bowling?.find(b => b.player?._id?.toString() === bowlerIdOfOver || b.player?.toString() === bowlerIdOfOver);
+                  const bowlerName = bowlerEntry?.player?.name || '';
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.02)', border: `1px solid ${C.border}` }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: C.dim, minWidth: 36, letterSpacing: '0.04em' }}>OV {i + 1}</span>
+                      <div style={{ minWidth: 36 }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: C.dim, letterSpacing: '0.04em', display: 'block' }}>OV {i + 1}</span>
+                        {bowlerName && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 60, display: 'block' }}>{bowlerName.split(' ')[0]}</span>}
+                      </div>
                       <div style={{ display: 'flex', gap: 4, flex: 1 }}>
                         {overBalls.map((ball, j) => (
                           <div key={j} style={{ width: 26, height: 26, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, fontFamily: 'var(--font-bebas)', ...ballStyle(ball) }}>
