@@ -487,12 +487,12 @@ export default function ScorePage() {
           {/* Extras */}
           <Label>Extras</Label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-            <Btn onClick={() => openExtrasModal('wd')} variant="orange" size="sm">Wide (Wd)</Btn>
-            <Btn onClick={() => openExtrasModal('nb')} variant="orange" size="sm">No Ball (NB)</Btn>
+            <Btn onClick={() => submitBall({ runs: 1, extras: 'wd' })} variant="orange" size="sm">Wide (Wd)</Btn>
+            <Btn onClick={() => submitBall({ runs: 1, extras: 'nb' })} variant="orange" size="sm">No Ball (NB)</Btn>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 8 }}>
             {[['nb-ff','Front Foot NB'],['nb-2b','2 Bounce NB'],['nb-wh','Waist High NB']].map(([t,l]) => (
-              <Btn key={t} onClick={() => openExtrasModal(t)} variant="orange" size="sm" style={{ fontSize: 11 }}>{l}</Btn>
+              <Btn key={t} onClick={() => submitBall({ runs: 1, extras: t })} variant="orange" size="sm" style={{ fontSize: 11 }}>{l}</Btn>
             ))}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 18 }}>
@@ -597,34 +597,7 @@ export default function ScorePage() {
         )}
 
         {/* ── Extras Modal ── */}
-        {extrasModal && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, backdropFilter: 'blur(4px)' }}>
-            <div style={{ background: C.bg1, border: '1px solid rgba(249,115,22,0.4)', borderRadius: 16, padding: 24, maxWidth: 360, width: '100%', margin: '0 16px' }}>
-              <div style={{ marginBottom: 18 }}>
-                <p style={{ fontSize: 15, fontWeight: 800, color: C.orange, marginBottom: 4 }}>
-                  {extrasType === 'wd' ? 'Wide' : extrasType === 'nb' ? 'No Ball' : extrasType === 'nb-ff' ? 'Front Foot No Ball' : extrasType === 'nb-2b' ? '2 Bounce No Ball' : 'Waist High Full Toss NB'}
-                </p>
-                <p style={{ fontSize: 12, color: C.dim }}>+1 penalty added automatically. Select additional runs:</p>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 20 }}>
-                {[0,1,2,3,4,5,6].map(r => (
-                  <button key={r} onClick={() => setExtrasRuns(r)} style={{
-                    padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
-                    fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
-                    background: extrasRuns === r ? C.orange : C.bg2,
-                    color: extrasRuns === r ? C.bg0 : C.text,
-                    outline: extrasRuns !== r ? `1px solid ${C.border}` : 'none',
-                    transition: 'all .15s',
-                  }}>{r}</button>
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <Btn onClick={() => setExtrasModal(false)} variant="ghost" size="sm" style={{ flex: 1 }}>Cancel</Btn>
-                <Btn onClick={confirmExtras} variant="orange" size="sm" style={{ flex: 1 }}>Confirm</Btn>
-              </div>
-            </div>
-          </div>
-        )}
+        {extrasModal && null /* extras modal removed — NB/Wide are now direct buttons */}
 
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
