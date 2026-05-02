@@ -355,37 +355,76 @@ function ScorecardInnings({ innings, battingTeamName, bowlingTeamName }) {
             </tr>
           </thead>
           <tbody>
-            {innings.batting?.filter(b => b.player)?.length > 0 ? innings.batting.filter(b => b.player).map((b, i) => (
-              <tr key={i} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                <td style={{ ...tdStyle, textAlign: 'left', fontWeight: 600, color: 'var(--text-primary)', textTransform: 'uppercase', fontSize: 12 }}>
-                  {b.player?.name || 'Player'}
-                  {b.status === 'out' && <span style={{ fontSize: 10, color: 'var(--red)', marginLeft: 6, fontWeight: 600 }}>out</span>}
-                  {(b.status === 'not out' || b.status === 'batting') && <span style={{ fontSize: 10, color: 'var(--green)', marginLeft: 6, fontWeight: 600 }}>not out</span>}
-                </td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 900, fontFamily: 'var(--font-bebas)', fontSize: 15 }}>{b.runs ?? 0}</td>
-                <td style={{ ...tdStyle, textAlign: 'right' }}>{b.balls ?? 0}</td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--green)', fontWeight: 700 }}>{b.fours ?? 0}</td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 700 }}>{b.sixes ?? 0}</td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--text-secondary)', fontWeight: 700 }}>{(b.balls ?? 0) > 0 ? (((b.runs ?? 0) / b.balls) * 100).toFixed(0) : '—'}</td>
-              </tr>
-            )) : (
-              <tr><td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No batting data yet</td></tr>
-            )}
+            {(() => {
+              // Merge innings.batting with currentBatsmen so live batsmen always show
+              const battingArr = innings.batting?.filter(b => b.player) ?? [];
+              const currentMap = {};
+              (innings.currentBatsmen ?? []).forEach(cb => {
+                const pid = cb.player?._id ?? cb.player;
+                if (pid) currentMap[String(pid)] = cb;
+              });
+              // Build merged list: update existing entries with live stats, append new ones
+              const merged = battingArr.map(b => {
+                const pid = String(b.player?._id ?? b.player ?? '');
+                const live = currentMap[pid];
+                if (live) {
+                  // Use live stats (more up-to-date) and mark as batting
+                  return { ...b, runs: live.runs ?? b.runs, balls: live.balls ?? b.balls, fours: live.fours ?? b.fours, sixes: live.sixes ?? b.sixes, status: 'batting', _isLive: true, _isStriker: live.isStriker };
+                }
+                return b;
+              });
+              // Append currentBatsmen not already in batting array
+              (innings.currentBatsmen ?? []).forEach(cb => {
+                const pid = String(cb.player?._id ?? cb.player ?? '');
+                const alreadyIn = battingArr.some(b => String(b.player?._id ?? b.player ?? '') === pid);
+                if (!alreadyIn && pid) {
+                  merged.push({ player: cb.player, runs: cb.runs ?? 0, balls: cb.balls ?? 0, fours: cb.fours ?? 0, sixes: cb.sixes ?? 0, status: 'batting', _isLive: true, _isStriker: cb.isStriker });
+                }
+              });
+
+              if (merged.length === 0) {
+                return <tr><td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No batting data yet</td></tr>;
+              }
+
+              return merged.map((b, i) => {
+                const isOut    = b.status === 'out';
+                const isBatting = b.status === 'batting' || b._isLive;
+                const sr = (b.balls ?? 0) > 0 ? (((b.runs ?? 0) / b.balls) * 100).toFixed(0) : '—';
+                return (
+                  <tr key={i} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <td style={{ ...tdStyle, textAlign: 'left', fontWeight: 600, color: 'var(--text-primary)', textTransform: 'uppercase', fontSize: 12 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        {isBatting && b._isStriker && (
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--gold)', display: 'inline-block', flexShrink: 0, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                        )}
+                        {b.player?.name || 'Player'}
+                      </span>
+                      {isOut    && <span style={{ fontSize: 10, color: 'var(--red)',   marginLeft: 6, fontWeight: 600 }}>out</span>}
+                      {isBatting && <span style={{ fontSize: 10, color: 'var(--gold)', marginLeft: 6, fontWeight: 700 }}>batting{b._isStriker ? ' *' : ''}</span>}
+                      {(!isOut && !isBatting) && <span style={{ fontSize: 10, color: 'var(--green)', marginLeft: 6, fontWeight: 600 }}>not out</span>}
+                    </td>
+                    <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 900, fontFamily: 'var(--font-bebas)', fontSize: 15 }}>{b.runs ?? 0}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right' }}>{b.balls ?? 0}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--green)', fontWeight: 700 }}>{b.fours ?? 0}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 700 }}>{b.sixes ?? 0}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--text-secondary)', fontWeight: 700 }}>{sr}</td>
+                  </tr>
+                );
+              });
+            })()}
             {/* Extras + Total footer */}
-            {innings.batting?.filter(b => b.player)?.length > 0 && (
-              <>
-                <tr style={{ background: 'var(--bg-elevated)' }}>
-                  <td style={{ ...tdStyle, textAlign: 'left', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, borderBottom: 'none' }} colSpan={3}>
-                    Extras: <strong style={{ color: 'var(--text-secondary)' }}>{innings.extras ?? 0}</strong>
-                  </td>
-                  <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--text-primary)', fontWeight: 900, fontFamily: 'var(--font-bebas)', fontSize: 16, borderBottom: 'none' }} colSpan={3}>
-                    {innings.runs ?? 0}<span style={{ color: 'var(--red)', fontSize: 13 }}>/{innings.wickets ?? 0}</span>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', fontWeight: 600, marginLeft: 6 }}>
-                      ({innings.overs ?? 0}.{innings.balls ?? 0} ov)
-                    </span>
-                  </td>
-                </tr>
-              </>
+            {(innings.batting?.filter(b => b.player)?.length > 0 || (innings.currentBatsmen?.length ?? 0) > 0) && (
+              <tr style={{ background: 'var(--bg-elevated)' }}>
+                <td style={{ ...tdStyle, textAlign: 'left', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, borderBottom: 'none' }} colSpan={3}>
+                  Extras: <strong style={{ color: 'var(--text-secondary)' }}>{innings.extras ?? 0}</strong>
+                </td>
+                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--text-primary)', fontWeight: 900, fontFamily: 'var(--font-bebas)', fontSize: 16, borderBottom: 'none' }} colSpan={3}>
+                  {innings.runs ?? 0}<span style={{ color: 'var(--red)', fontSize: 13 }}>/{innings.wickets ?? 0}</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', fontWeight: 600, marginLeft: 6 }}>
+                    ({innings.overs ?? 0}.{innings.balls ?? 0} ov)
+                  </span>
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

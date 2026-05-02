@@ -281,6 +281,10 @@ export default function AdminMatches() {
                               {m.status!=='scheduled' && (
                                 <Btn onClick={() => setStatus(m._id,'scheduled')} variant="ghost">Reset</Btn>
                               )}
+                              <Link href={`/admin/matches/${m._id}/summary`} style={{ padding:'6px 12px', borderRadius:7, background:C.goldDim, color:C.gold, textDecoration:'none', fontWeight:700, fontSize:12, border:`1px solid rgba(201,162,39,0.25)`, display:'inline-flex', alignItems:'center', gap:4 }}>
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                Summary
+                              </Link>
                               <Btn onClick={() => setDeleteId(m._id)} variant="danger">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                               </Btn>
