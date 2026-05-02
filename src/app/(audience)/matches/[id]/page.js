@@ -156,12 +156,25 @@ export default function MatchDetailPage() {
             <Card>
               <Label>At the Crease</Label>
               <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {striker ? (
-                  <BatsmanRow b={striker} isStriker />
-                ) : (
-                  <p style={{ fontSize: 13, color: 'var(--text-muted)', padding: '16px 0', textAlign: 'center' }}>Waiting for batsmen...</p>
-                )}
-                {nonStriker && <BatsmanRow b={nonStriker} />}
+                {(() => {
+                  // If live, show currentBatsmen. If innings over, show last batsmen from batting array.
+                  if (striker || nonStriker) {
+                    return (
+                      <>
+                        {striker && <BatsmanRow b={striker} isStriker />}
+                        {nonStriker && <BatsmanRow b={nonStriker} />}
+                      </>
+                    );
+                  }
+                  // Innings complete — show not-out batsmen, or last two who batted
+                  const batted = (innings?.batting || []).filter(b => b.player);
+                  const notOut = batted.filter(b => b.status === 'not out' || b.status === 'batting');
+                  const display = notOut.length > 0 ? notOut : batted.slice(-2);
+                  if (display.length === 0) {
+                    return <p style={{ fontSize: 13, color: 'var(--text-muted)', padding: '16px 0', textAlign: 'center' }}>Waiting for batsmen...</p>;
+                  }
+                  return display.map((b, i) => <BatsmanRow key={i} b={b} isStriker={i === 0} />);
+                })()}
               </div>
             </Card>
 
@@ -342,22 +355,37 @@ function ScorecardInnings({ innings, battingTeamName, bowlingTeamName }) {
             </tr>
           </thead>
           <tbody>
-            {innings.batting?.length > 0 ? innings.batting.map((b, i) => (
+            {innings.batting?.filter(b => b.player)?.length > 0 ? innings.batting.filter(b => b.player).map((b, i) => (
               <tr key={i} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                 <td style={{ ...tdStyle, textAlign: 'left', fontWeight: 600, color: 'var(--text-primary)', textTransform: 'uppercase', fontSize: 12 }}>
                   {b.player?.name || 'Player'}
                   {b.status === 'out' && <span style={{ fontSize: 10, color: 'var(--red)', marginLeft: 6, fontWeight: 600 }}>out</span>}
-                  {b.status === 'not out' && <span style={{ fontSize: 10, color: 'var(--green)', marginLeft: 6, fontWeight: 600 }}>not out</span>}
-                  {b.status === 'batting' && <span style={{ fontSize: 10, color: 'var(--gold)', marginLeft: 6, fontWeight: 600 }}>*</span>}
+                  {(b.status === 'not out' || b.status === 'batting') && <span style={{ fontSize: 10, color: 'var(--green)', marginLeft: 6, fontWeight: 600 }}>not out</span>}
                 </td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 900, fontFamily: 'var(--font-bebas)', fontSize: 15 }}>{b.runs}</td>
-                <td style={{ ...tdStyle, textAlign: 'right' }}>{b.balls}</td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--green)', fontWeight: 700 }}>{b.fours}</td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 700 }}>{b.sixes}</td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--text-secondary)', fontWeight: 700 }}>{b.balls > 0 ? ((b.runs / b.balls) * 100).toFixed(0) : '—'}</td>
+                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 900, fontFamily: 'var(--font-bebas)', fontSize: 15 }}>{b.runs ?? 0}</td>
+                <td style={{ ...tdStyle, textAlign: 'right' }}>{b.balls ?? 0}</td>
+                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--green)', fontWeight: 700 }}>{b.fours ?? 0}</td>
+                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--gold)', fontWeight: 700 }}>{b.sixes ?? 0}</td>
+                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--text-secondary)', fontWeight: 700 }}>{(b.balls ?? 0) > 0 ? (((b.runs ?? 0) / b.balls) * 100).toFixed(0) : '—'}</td>
               </tr>
             )) : (
               <tr><td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No batting data yet</td></tr>
+            )}
+            {/* Extras + Total footer */}
+            {innings.batting?.filter(b => b.player)?.length > 0 && (
+              <>
+                <tr style={{ background: 'var(--bg-elevated)' }}>
+                  <td style={{ ...tdStyle, textAlign: 'left', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, borderBottom: 'none' }} colSpan={3}>
+                    Extras: <strong style={{ color: 'var(--text-secondary)' }}>{innings.extras ?? 0}</strong>
+                  </td>
+                  <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--text-primary)', fontWeight: 900, fontFamily: 'var(--font-bebas)', fontSize: 16, borderBottom: 'none' }} colSpan={3}>
+                    {innings.runs ?? 0}<span style={{ color: 'var(--red)', fontSize: 13 }}>/{innings.wickets ?? 0}</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', fontWeight: 600, marginLeft: 6 }}>
+                      ({innings.overs ?? 0}.{innings.balls ?? 0} ov)
+                    </span>
+                  </td>
+                </tr>
+              </>
             )}
           </tbody>
         </table>
