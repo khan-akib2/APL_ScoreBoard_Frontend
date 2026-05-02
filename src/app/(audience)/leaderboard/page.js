@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import UserLayout from '@/components/UserLayout';
 import { api } from '@/services/api';
 
-const medals = ['🥇', '🥈', '🥉'];
+const rankColors = ['var(--gold)', '#c0c0c0', '#cd7f32'];
+const rankNums = ['1', '2', '3'];
 
 const rankBg = (i) => {
   if (i === 0) return 'linear-gradient(135deg, rgba(201,162,39,0.16), rgba(201,162,39,0.06))';
@@ -35,7 +36,7 @@ function RankBadge({ rank }) {
       fontSize: i < 3 ? 18 : 14, fontWeight: 900, fontFamily: 'var(--font-bebas)',
       color: rankColor(i),
     }}>
-      {i < 3 ? medals[i] : rank}
+      {i < 3 ? rankNums[i] : rank}
     </div>
   );
 }

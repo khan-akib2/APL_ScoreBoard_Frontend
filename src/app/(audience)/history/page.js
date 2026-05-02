@@ -138,7 +138,7 @@ function MatchDetail({ match, onClose }) {
         {/* Result banner */}
         {winnerName && (
           <div style={{ padding: '12px 24px', background: 'rgba(201,162,39,0.08)', borderBottom: '1px solid rgba(201,162,39,0.15)', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 20 }}>🏆</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
             <div>
               <p style={{ fontSize: 13, fontWeight: 800, color: 'var(--gold)' }}>{winnerName} won</p>
               <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{match.result?.description}</p>
@@ -152,7 +152,10 @@ function MatchDetail({ match, onClose }) {
           <InningsCard innings={match.innings2} teamName={inn2Team} label="2nd Innings" />
           {match.isSuperOver && (
             <>
-              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(201,162,39,0.08)', border: '1px solid rgba(201,162,39,0.2)', marginBottom: 12, fontSize: 12, fontWeight: 700, color: 'var(--gold)' }}>⚡ Super Over</div>
+              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(201,162,39,0.08)', border: '1px solid rgba(201,162,39,0.2)', marginBottom: 12, fontSize: 12, fontWeight: 700, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Super Over
+              </div>
               <InningsCard innings={match.superOver1} teamName={inn2Team} label="Super Over 1" />
               <InningsCard innings={match.superOver2} teamName={inn1Team} label="Super Over 2" />
             </>
@@ -201,7 +204,7 @@ function HistoryCard({ match, onClick }) {
 
       {winner && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 8, background: 'rgba(201,162,39,0.06)', border: '1px solid rgba(201,162,39,0.15)' }}>
-          <span style={{ fontSize: 13 }}>🏆</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
           <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--gold)' }}>{winner} — {match.result?.description}</p>
         </div>
       )}
@@ -286,7 +289,9 @@ export default function HistoryPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16 }}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>🏏</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, color: 'var(--text-muted)' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l9-9"/><path d="M12.5 7.5l4 4"/><path d="M15 6l3-3 3 3-3 3-3-3z"/></svg>
+              </div>
               <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>No matches completed yet</p>
               <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Completed match history will appear here</p>
             </div>

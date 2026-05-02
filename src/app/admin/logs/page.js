@@ -49,7 +49,8 @@ function LogTable({ matches, title, color }) {
       </div>
 
       {/* Column headers */}
-      <div style={{ display: 'grid', gridTemplateColumns: '90px 110px 1fr 150px', padding: '8px 16px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 1fr 130px', padding: '8px 16px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)', minWidth: 420 }}>
         {['Time', 'Event', 'Details', 'Match'].map(h => (
           <p key={h} style={{ fontSize: 10, fontWeight: 700, color: '#4a6a82', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{h}</p>
         ))}
@@ -65,9 +66,10 @@ function LogTable({ matches, title, color }) {
           const es = EVENT_STYLES[log.event] || EVENT_STYLES.match_reset;
           return (
             <div key={i} style={{
-              display: 'grid', gridTemplateColumns: '90px 110px 1fr 150px',
+              display: 'grid', gridTemplateColumns: '80px 100px 1fr 130px',
               padding: '11px 16px',
               borderBottom: i < logs.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+              minWidth: 420,
             }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -86,10 +88,12 @@ function LogTable({ matches, title, color }) {
           );
         })}
       </div>
+      </div>{/* end scroll wrapper */}
 
       {/* Footer */}
-      <div style={{ padding: '8px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.15)', fontSize: 11, color: '#4a6a82' }}>
-        {matches.length} match{matches.length !== 1 ? 'es' : ''} · Auto-refreshes every 15s
+      <div style={{ padding: '8px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.15)', fontSize: 11, color: '#4a6a82', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        {matches.length} match{matches.length !== 1 ? 'es' : ''} · Live — updates every 3s
       </div>
     </div>
   );
@@ -114,7 +118,7 @@ export default function AdminLogs() {
   };
 
   useEffect(() => {
-    const t = setInterval(load, 15000);
+    const t = setInterval(load, 3000);
     return () => clearInterval(t);
   }, []);
 
@@ -147,7 +151,7 @@ export default function AdminLogs() {
         </div>
 
         {/* Group A + Group B side by side */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: 20, marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginBottom: 20 }}>
           <LogTable matches={groupA} title="GROUP A LOGS" color="#c9a227" />
           <LogTable matches={groupB} title="GROUP B LOGS" color="#60a5fa" />
         </div>
@@ -158,7 +162,7 @@ export default function AdminLogs() {
         )}
 
       </div>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
     </AdminLayout>
   );
 }

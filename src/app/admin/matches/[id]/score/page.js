@@ -112,6 +112,9 @@ export default function ScorePage() {
   const [extrasModal, setExtrasModal] = useState(false);
   const [extrasType, setExtrasType] = useState('');
   const [extrasRuns, setExtrasRuns] = useState(0);
+  const [overthrowModal, setOverthrowModal] = useState(false);
+  const [overthrowBatsmanRuns, setOverthrowBatsmanRuns] = useState(0);
+  const [overthrowExtraRuns, setOverthrowExtraRuns] = useState(4);
   const [msg, setMsg] = useState('');
   const [msgType, setMsgType] = useState('info');
 
@@ -240,8 +243,25 @@ export default function ScorePage() {
       fielderName: fielder?.name || '',
     });
   };
-  const openExtrasModal = (type) => { setExtrasType(type); setExtrasRuns(type !== 'wd' ? 1 : 0); setExtrasModal(true); };
-  const confirmExtras = () => { setExtrasModal(false); submitBall({ runs: extrasRuns, extras: extrasType }); };
+  const   openExtrasModal = (type) => {
+    setExtrasType(type);
+    // For NB types: default 1 run (the penalty). For wide: default 0 extra runs (1 penalty auto-added). For bye/lb: default 1.
+    if (type === 'wd') setExtrasRuns(0);
+    else if (type === 'b' || type === 'lb') setExtrasRuns(1);
+    else setExtrasRuns(1); // NB types: 1 = just the penalty
+    setExtrasModal(true);
+  };
+  const confirmExtras = () => {
+    setExtrasModal(false);
+    const isWide = extrasType === 'wd';
+    const isNB = extrasType === 'nb' || extrasType?.startsWith('nb-');
+    const isBye = extrasType === 'b' || extrasType === 'lb';
+    // Wide: total = 1 (penalty) + extrasRuns (batsman ran)
+    // NB: total = extrasRuns (already includes the 1 penalty)
+    // Bye/LB: total = extrasRuns (runs scored, don't count to batsman)
+    const totalRuns = isWide ? 1 + extrasRuns : extrasRuns;
+    submitBall({ runs: totalRuns, extras: extrasType });
+  };
 
   if (!match) return (
     <AdminLayout>
@@ -271,7 +291,7 @@ export default function ScorePage() {
   return (
     <AdminLayout>
       {/* Full-width wrapper — no maxWidth, fills the main area */}
-      <div className="admin-page-pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 14, boxSizing: 'border-box' }}>
+      <div className="admin-page-pad" style={{ display: 'flex', flexDirection: 'column', gap: 14, boxSizing: 'border-box' }}>
 
         {/* ── Top bar: header + innings tabs + toast ── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
@@ -300,7 +320,9 @@ export default function ScorePage() {
                   opacity: disabled ? 0.4 : 1,
                 }}>
                   Inn {n}
-                  {disabled && <span style={{ marginLeft: 6, fontSize: 10 }}>🔒</span>}
+                  {disabled && <span style={{ marginLeft: 6, fontSize: 10, color: C.dim }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </span>}
                 </button>
               );
             })}
@@ -324,7 +346,7 @@ export default function ScorePage() {
         )}
 
         {/* ── Two-column body ── */}
-        <div className="score-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <div className="score-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, flex: 1, minHeight: 0 }}>
 
           {/* LEFT column — scoreboard + players */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto', minHeight: 0 }}>
@@ -487,7 +509,7 @@ export default function ScorePage() {
           </div>{/* end LEFT column */}
 
           {/* RIGHT column — scoring buttons */}
-          <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
         {/* ── Scoring Buttons ── */}
         <Panel>
@@ -507,25 +529,28 @@ export default function ScorePage() {
           {/* Extras */}
           <Label>Extras</Label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-            <Btn onClick={() => submitBall({ runs: 1, extras: 'wd' })} variant="orange" size="sm">Wide (Wd)</Btn>
-            <Btn onClick={() => submitBall({ runs: 1, extras: 'nb' })} variant="orange" size="sm">No Ball (NB)</Btn>
+            <Btn onClick={() => openExtrasModal('wd')} variant="orange" size="sm">Wide (Wd)</Btn>
+            <Btn onClick={() => openExtrasModal('nb')} variant="orange" size="sm">No Ball (NB)</Btn>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 8 }}>
             {[['nb-ff','Front Foot NB'],['nb-2b','2 Bounce NB'],['nb-wh','Waist High NB']].map(([t,l]) => (
-              <Btn key={t} onClick={() => submitBall({ runs: 1, extras: t })} variant="orange" size="sm" style={{ fontSize: 11 }}>{l}</Btn>
+              <Btn key={t} onClick={() => openExtrasModal(t)} variant="orange" size="sm" style={{ fontSize: 11 }}>{l}</Btn>
             ))}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 18 }}>
-            <Btn onClick={() => submitBall({ runs: 1, extras: 'b' })} size="sm">Bye</Btn>
-            <Btn onClick={() => submitBall({ runs: 1, extras: 'lb' })} size="sm">Leg Bye</Btn>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+            <Btn onClick={() => openExtrasModal('b')} size="sm">Bye</Btn>
+            <Btn onClick={() => openExtrasModal('lb')} size="sm">Leg Bye</Btn>
           </div>
 
           {/* Overthrow */}
           <Label>Overthrow</Label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 18 }}>
-            {[1,2,3,4].map(ot => (
-              <Btn key={ot} onClick={() => submitBall({ runs: ot, extras: `ot${ot}`, extraRuns: ot })} variant="six" size="sm">+{ot}</Btn>
-            ))}
+          <div style={{ marginBottom: 18 }}>
+            <Btn onClick={() => { setOverthrowBatsmanRuns(0); setOverthrowExtraRuns(4); setOverthrowModal(true); }} variant="six" size="sm" style={{ width: '100%' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+              Overthrow
+            </Btn>
           </div>
 
           {/* Wicket */}
@@ -622,7 +647,7 @@ export default function ScorePage() {
               {FIELDER_DISMISSALS.includes(wicketType) && (
                 <div style={{ marginBottom: 20 }}>
                   <p style={{ fontSize: 10, fontWeight: 700, color: C.dim, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
-                    {wicketType === 'caught' ? '🧤 Caught by' : wicketType === 'stumped' ? '🧤 Stumped by' : '🏃 Run out by'}
+                    {wicketType === 'caught' ? 'Caught by' : wicketType === 'stumped' ? 'Stumped by' : 'Run out by'}
                   </p>
                   <select
                     value={fielderId}
@@ -663,20 +688,26 @@ export default function ScorePage() {
 
         {/* ── Extras Modal ── */}
         {extrasModal && (() => {
-          const isNB = extrasType !== 'wd';
-          // NB: extrasRuns IS the total; Wide: extrasRuns is extra, +1 penalty on top
-          const totalWillAdd = isNB ? extrasRuns : 1 + extrasRuns;
+          const isNB = extrasType === 'nb' || extrasType?.startsWith('nb-');
+          const isWide = extrasType === 'wd';
+          const isBye = extrasType === 'b' || extrasType === 'lb';
+          // Total runs that will be added to the score
+          const totalWillAdd = isWide ? 1 + extrasRuns : extrasRuns;
+          const extraLabel = extrasType === 'wd' ? 'Wide'
+            : extrasType === 'nb' ? 'No Ball'
+            : extrasType === 'nb-ff' ? 'Front Foot No Ball'
+            : extrasType === 'nb-2b' ? '2 Bounce No Ball'
+            : extrasType === 'nb-wh' ? 'Waist High Full Toss NB'
+            : extrasType === 'b' ? 'Bye'
+            : 'Leg Bye';
           return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, backdropFilter: 'blur(4px)' }}>
             <div style={{ background: C.bg1, border: '1px solid rgba(249,115,22,0.4)', borderRadius: 16, padding: 24, maxWidth: 360, width: '100%', margin: '0 16px' }}>
               <div style={{ marginBottom: 16 }}>
-                <p style={{ fontSize: 15, fontWeight: 800, color: C.orange, marginBottom: 4 }}>
-                  {extrasType === 'wd' ? 'Wide' : extrasType === 'nb' ? 'No Ball' : extrasType === 'nb-ff' ? 'Front Foot No Ball' : extrasType === 'nb-2b' ? '2 Bounce No Ball' : 'Waist High Full Toss NB'}
-                </p>
-                {isNB
-                  ? <p style={{ fontSize: 12, color: C.dim }}>Select total runs scored off this delivery:</p>
-                  : <p style={{ fontSize: 12, color: C.dim }}>+1 penalty is automatic. Select extra runs if batsman ran:</p>
-                }
+                <p style={{ fontSize: 15, fontWeight: 800, color: C.orange, marginBottom: 4 }}>{extraLabel}</p>
+                {isNB && <p style={{ fontSize: 12, color: C.dim }}>Select total runs scored off this delivery (including the 1-run penalty):</p>}
+                {isWide && <p style={{ fontSize: 12, color: C.dim }}>+1 penalty is automatic. Select extra runs if batsman ran:</p>}
+                {isBye && <p style={{ fontSize: 12, color: C.dim }}>Select runs scored (these go to extras, not the batsman):</p>}
               </div>
 
               {isNB ? (
@@ -693,14 +724,28 @@ export default function ScorePage() {
                     }}>{r}</button>
                   ))}
                 </div>
-              ) : (
-                /* Wide: buttons show additional runs (0–6) */
+              ) : isWide ? (
+                /* Wide: buttons show additional runs (0–6) batsman ran */
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 12 }}>
                   {[0,1,2,3,4,5,6].map(r => (
                     <button key={r} onClick={() => setExtrasRuns(r)} style={{
                       padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
                       fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
                       background: extrasRuns === r ? C.orange : C.bg2,
+                      color: extrasRuns === r ? C.bg0 : C.text,
+                      outline: extrasRuns !== r ? `1px solid ${C.border}` : 'none',
+                      transition: 'all .15s',
+                    }}>{r}</button>
+                  ))}
+                </div>
+              ) : (
+                /* Bye / Leg Bye: runs 1–6 */
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 12 }}>
+                  {[1,2,3,4,5,6].map(r => (
+                    <button key={r} onClick={() => setExtrasRuns(r)} style={{
+                      padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
+                      fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
+                      background: extrasRuns === r ? C.gold : C.bg2,
                       color: extrasRuns === r ? C.bg0 : C.text,
                       outline: extrasRuns !== r ? `1px solid ${C.border}` : 'none',
                       transition: 'all .15s',
@@ -718,7 +763,7 @@ export default function ScorePage() {
 
               <div style={{ display: 'flex', gap: 10 }}>
                 <Btn onClick={() => setExtrasModal(false)} variant="ghost" size="sm" style={{ flex: 1 }}>Cancel</Btn>
-                <Btn onClick={confirmExtras} variant="orange" size="sm" style={{ flex: 1 }}>Confirm ({totalWillAdd} runs)</Btn>
+                <Btn onClick={confirmExtras} variant="orange" size="sm" style={{ flex: 1 }}>Confirm ({totalWillAdd} run{totalWillAdd !== 1 ? 's' : ''})</Btn>
               </div>
             </div>
           </div>
@@ -726,6 +771,84 @@ export default function ScorePage() {
         })()}
 
       </div>
+
+      {/* ── Overthrow Modal ── */}
+      {overthrowModal && (() => {
+        const total = overthrowBatsmanRuns + overthrowExtraRuns;
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, backdropFilter: 'blur(4px)' }}>
+            <div style={{ background: C.bg1, border: `1px solid rgba(201,162,39,0.4)`, borderRadius: 16, padding: 24, maxWidth: 380, width: '100%', margin: '0 16px' }}>
+
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: C.goldDim, border: `1px solid rgba(201,162,39,0.3)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </div>
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 800, color: C.gold }}>Overthrow</p>
+                  <p style={{ fontSize: 11, color: C.dim }}>Runs batsman ran + overthrow boundary</p>
+                </div>
+              </div>
+
+              {/* Step 1: Batsman runs */}
+              <p style={{ fontSize: 10, fontWeight: 700, color: C.dim, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
+                Runs batsman ran before throw
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 18 }}>
+                {[0,1,2,3,4,5,6].map(r => (
+                  <button key={r} onClick={() => setOverthrowBatsmanRuns(r)} style={{
+                    padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
+                    fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
+                    background: overthrowBatsmanRuns === r ? C.gold : C.bg2,
+                    color: overthrowBatsmanRuns === r ? C.bg0 : C.text,
+                    outline: overthrowBatsmanRuns !== r ? `1px solid ${C.border}` : 'none',
+                    transition: 'all .15s',
+                  }}>{r}</button>
+                ))}
+              </div>
+
+              {/* Step 2: Overthrow runs */}
+              <p style={{ fontSize: 10, fontWeight: 700, color: C.dim, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
+                Overthrow runs (boundary or fielding error)
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 18 }}>
+                {[1,2,3,4,5,6].map(r => (
+                  <button key={r} onClick={() => setOverthrowExtraRuns(r)} style={{
+                    padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
+                    fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
+                    background: overthrowExtraRuns === r ? C.gold : C.bg2,
+                    color: overthrowExtraRuns === r ? C.bg0 : C.text,
+                    outline: overthrowExtraRuns !== r ? `1px solid ${C.border}` : 'none',
+                    transition: 'all .15s',
+                  }}>{r}</button>
+                ))}
+              </div>
+
+              {/* Total preview */}
+              <div style={{ marginBottom: 16, padding: '10px 14px', background: C.bg0, borderRadius: 8, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <span style={{ fontSize: 13, color: C.dim }}>{overthrowBatsmanRuns} batsman</span>
+                <span style={{ fontSize: 13, color: C.dim }}>+</span>
+                <span style={{ fontSize: 13, color: C.dim }}>{overthrowExtraRuns} overthrow</span>
+                <span style={{ fontSize: 13, color: C.dim }}>=</span>
+                <span style={{ fontSize: 22, fontWeight: 900, color: C.gold, fontFamily: 'var(--font-bebas)' }}>{total} runs</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Btn onClick={() => setOverthrowModal(false)} variant="ghost" size="sm" style={{ flex: 1 }}>Cancel</Btn>
+                <Btn onClick={() => {
+                  setOverthrowModal(false);
+                  submitBall({ runs: total, extras: `ot${overthrowExtraRuns}`, extraRuns: overthrowExtraRuns });
+                }} variant="six" size="sm" style={{ flex: 1 }}>
+                  Confirm ({total} runs)
+                </Btn>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
     </AdminLayout>
   );

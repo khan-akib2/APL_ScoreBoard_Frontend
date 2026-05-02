@@ -9,6 +9,56 @@ function formatDate(d) {
   return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
+// SVG icon components
+const IconBat = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 21l9-9"/><path d="M12.5 7.5l4 4"/><path d="M15 6l3-3 3 3-3 3-3-3z"/>
+  </svg>
+);
+const IconCalendar = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+const IconBolt = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+);
+const IconStadium = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <ellipse cx="12" cy="12" rx="10" ry="5"/><path d="M2 12v5c0 2.76 4.48 5 10 5s10-2.24 10-5v-5"/>
+  </svg>
+);
+const IconUser = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+const IconTarget = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+  </svg>
+);
+const IconSix = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/>
+  </svg>
+);
+const IconFour = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 9h18"/>
+  </svg>
+);
+const IconTrophy = () => (
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+    <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+  </svg>
+);
+
 function StatCard({ icon, label, value, sub, highlight }) {
   return (
     <div style={{
@@ -17,7 +67,7 @@ function StatCard({ icon, label, value, sub, highlight }) {
       border: `1px solid ${highlight ? 'rgba(201,162,39,0.25)' : 'var(--border-subtle)'}`,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-        <div style={{ fontSize: 22 }}>{icon}</div>
+        <div style={{ color: highlight ? 'var(--gold)' : 'var(--text-muted)', flexShrink: 0 }}>{icon}</div>
         <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>{label}</p>
       </div>
       <p style={{ fontSize: 28, fontWeight: 900, color: highlight ? 'var(--gold)' : 'var(--text-primary)', fontFamily: 'var(--font-bebas)', lineHeight: 1, marginBottom: sub ? 4 : 0 }}>
@@ -160,9 +210,9 @@ export default function SummaryPage() {
               {/* Progress */}
               <SectionTitle>Tournament Progress</SectionTitle>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 4 }}>
-                <StatCard icon="🏏" label="Matches Played" value={computed.played} sub={`of ${computed.total} total`} />
-                <StatCard icon="📅" label="Remaining" value={Math.max(0, computed.total - computed.played - computed.live.length)} />
-                <StatCard icon="⚡" label="Live Now" value={computed.live.length} highlight={computed.live.length > 0} />
+                <StatCard icon={<IconBat />} label="Matches Played" value={computed.played} sub={`of ${computed.total} total`} />
+                <StatCard icon={<IconCalendar />} label="Remaining" value={Math.max(0, computed.total - computed.played - computed.live.length)} />
+                <StatCard icon={<IconBolt />} label="Live Now" value={computed.live.length} highlight={computed.live.length > 0} />
               </div>
 
               {/* Progress bar */}
@@ -176,11 +226,11 @@ export default function SummaryPage() {
               {/* Tournament records */}
               <SectionTitle>Tournament Records</SectionTitle>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
-                <StatCard icon="🏟️" label="Highest Team Total" value={computed.highTeamTotal || '—'} sub={computed.highTeamMatch || 'No data yet'} highlight={computed.highTeamTotal > 0} />
-                <StatCard icon="🏏" label="Highest Individual" value={computed.highIndScore || '—'} sub={computed.highIndName || 'No data yet'} highlight={computed.highIndScore > 0} />
-                <StatCard icon="🎯" label="Best Bowling" value={computed.bestWickets > 0 ? `${computed.bestWickets}/${computed.bestWicketsRuns}` : '—'} sub={computed.bestWicketsName || 'No data yet'} highlight={computed.bestWickets > 0} />
-                <StatCard icon="🎆" label="Total Sixes" value={computed.mostSixes} />
-                <StatCard icon="4️⃣" label="Total Fours" value={computed.mostFoursCount} />
+                <StatCard icon={<IconStadium />} label="Highest Team Total" value={computed.highTeamTotal || '—'} sub={computed.highTeamMatch || 'No data yet'} highlight={computed.highTeamTotal > 0} />
+                <StatCard icon={<IconBat />} label="Highest Individual" value={computed.highIndScore || '—'} sub={computed.highIndName || 'No data yet'} highlight={computed.highIndScore > 0} />
+                <StatCard icon={<IconTarget />} label="Best Bowling" value={computed.bestWickets > 0 ? `${computed.bestWickets}/${computed.bestWicketsRuns}` : '—'} sub={computed.bestWicketsName || 'No data yet'} highlight={computed.bestWickets > 0} />
+                <StatCard icon={<IconSix />} label="Total Sixes" value={computed.mostSixes} />
+                <StatCard icon={<IconFour />} label="Total Fours" value={computed.mostFoursCount} />
               </div>
 
               {/* Live matches */}
@@ -215,7 +265,7 @@ export default function SummaryPage() {
 
               {computed.played === 0 && computed.live.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16, marginTop: 20 }}>
-                  <div style={{ fontSize: 48, marginBottom: 16 }}>🏆</div>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, color: 'var(--gold)' }}><IconTrophy /></div>
                   <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Tournament hasn't started yet</p>
                   <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Stats will appear as matches are played</p>
                 </div>

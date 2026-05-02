@@ -6,17 +6,28 @@ import { useAuth } from '@/context/AuthContext';
 import { api } from '@/services/api';
 
 const AWARD_META = {
-  winner:            { label: 'Tournament Winner',       icon: '🏆', sub: 'Team captain of the winning team'         },
-  runnerUp:          { label: 'Runner Up',               icon: '🥈', sub: 'Team captain of the runner-up team'       },
-  bestBatsmanMale:   { label: 'Best Batsman (Male)',     icon: '🏏', sub: 'Most runs scored by a male player'        },
-  bestBatsmanFemale: { label: 'Best Batsman (Female)',   icon: '🏏', sub: 'Most runs scored by a female player'      },
-  bestBowlerMale:    { label: 'Best Bowler (Male)',      icon: '⚡', sub: 'Most wickets taken by a male player'      },
-  bestBowlerFemale:  { label: 'Best Bowler (Female)',    icon: '⚡', sub: 'Most wickets taken by a female player'    },
-  manOfSeries:       { label: 'Man of the Series',       icon: '⭐', sub: 'Best overall male performer'              },
-  womanOfSeries:     { label: 'Woman of the Series',     icon: '⭐', sub: 'Best overall female performer'            },
-  mostSixes:         { label: 'Most Sixes',              icon: '6️⃣', sub: 'Most sixes hit in the tournament'         },
-  mostFours:         { label: 'Most Fours',              icon: '4️⃣', sub: 'Most fours hit in the tournament'         },
-  bestFielder:       { label: 'Best Fielder',            icon: '🧤', sub: 'Most catches taken in the tournament'     },
+  winner:            { label: 'Tournament Winner',       icon: 'trophy',  sub: 'Team captain of the winning team'         },
+  runnerUp:          { label: 'Runner Up',               icon: 'medal',   sub: 'Team captain of the runner-up team'       },
+  bestBatsmanMale:   { label: 'Best Batsman (Male)',     icon: 'bat',     sub: 'Most runs scored by a male player'        },
+  bestBatsmanFemale: { label: 'Best Batsman (Female)',   icon: 'bat',     sub: 'Most runs scored by a female player'      },
+  bestBowlerMale:    { label: 'Best Bowler (Male)',      icon: 'bolt',    sub: 'Most wickets taken by a male player'      },
+  bestBowlerFemale:  { label: 'Best Bowler (Female)',    icon: 'bolt',    sub: 'Most wickets taken by a female player'    },
+  manOfSeries:       { label: 'Man of the Series',       icon: 'star',    sub: 'Best overall male performer'              },
+  womanOfSeries:     { label: 'Woman of the Series',     icon: 'star',    sub: 'Best overall female performer'            },
+  mostSixes:         { label: 'Most Sixes',              icon: 'six',     sub: 'Most sixes hit in the tournament'         },
+  mostFours:         { label: 'Most Fours',              icon: 'four',    sub: 'Most fours hit in the tournament'         },
+  bestFielder:       { label: 'Best Fielder',            icon: 'glove',   sub: 'Most catches taken in the tournament'     },
+};
+
+const AWARD_ICONS = {
+  trophy: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
+  medal:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>,
+  bat:    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l9-9"/><path d="M12.5 7.5l4 4"/><path d="M15 6l3-3 3 3-3 3-3-3z"/></svg>,
+  bolt:   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  star:   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  six:    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>,
+  four:   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 9h18"/></svg>,
+  glove:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>,
 };
 
 const AWARD_KEYS = Object.keys(AWARD_META);
@@ -159,7 +170,7 @@ export default function AdminAwards() {
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ fontSize: 20 }}>{meta.icon}</span>
+                      <div style={{ color: pub ? C.green : C.gold, flexShrink: 0 }}>{AWARD_ICONS[meta.icon]}</div>
                       <div>
                         <p style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{meta.label}</p>
                         <p style={{ fontSize: 11, color: C.dim, marginTop: 1 }}>{meta.sub}</p>

@@ -5,17 +5,28 @@ import { api } from '@/services/api';
 
 // ── Award display metadata ────────────────────────────────────────────────────
 const AWARD_META = {
-  winner:            { label: 'Tournament Winner',      sub: 'Champions of APL Season 8',               icon: '🏆', gender: null,     color: 'gold'   },
-  runnerUp:          { label: 'Runner Up',              sub: 'Runners-up of APL Season 8',              icon: '🥈', gender: null,     color: 'silver' },
-  bestBatsmanMale:   { label: 'Best Batsman',           sub: 'Men — Most runs in the tournament',       icon: '🏏', gender: 'male',   color: 'blue'   },
-  bestBatsmanFemale: { label: 'Best Batswoman',         sub: 'Women — Most runs in the tournament',     icon: '🏏', gender: 'female', color: 'pink'   },
-  bestBowlerMale:    { label: 'Best Bowler',            sub: 'Men — Most wickets in the tournament',    icon: '🎯', gender: 'male',   color: 'blue'   },
-  bestBowlerFemale:  { label: 'Best Bowler',            sub: 'Women — Most wickets in the tournament',  icon: '🎯', gender: 'female', color: 'pink'   },
-  manOfSeries:       { label: 'Man of the Series',      sub: 'Best overall male performer — points',    icon: '⭐', gender: 'male',   color: 'blue'   },
-  womanOfSeries:     { label: 'Woman of the Series',    sub: 'Best overall female performer — points',  icon: '⭐', gender: 'female', color: 'pink'   },
-  mostSixes:         { label: 'Most Sixes',             sub: 'Most sixes hit in the tournament',        icon: '🎆', gender: null,     color: 'gold'   },
-  mostFours:         { label: 'Most Fours',             sub: 'Most fours hit in the tournament',        icon: '4️⃣', gender: null,    color: 'gold'   },
-  bestFielder:       { label: 'Best Fielder',           sub: 'Most dismissals (catches + run-outs)',     icon: '🧤', gender: null,     color: 'gold'   },
+  winner:            { label: 'Tournament Winner',      sub: 'Champions of APL Season 8',               icon: 'trophy',  gender: null,     color: 'gold'   },
+  runnerUp:          { label: 'Runner Up',              sub: 'Runners-up of APL Season 8',              icon: 'medal',   gender: null,     color: 'silver' },
+  bestBatsmanMale:   { label: 'Best Batsman',           sub: 'Men — Most runs in the tournament',       icon: 'bat',     gender: 'male',   color: 'blue'   },
+  bestBatsmanFemale: { label: 'Best Batswoman',         sub: 'Women — Most runs in the tournament',     icon: 'bat',     gender: 'female', color: 'pink'   },
+  bestBowlerMale:    { label: 'Best Bowler',            sub: 'Men — Most wickets in the tournament',    icon: 'target',  gender: 'male',   color: 'blue'   },
+  bestBowlerFemale:  { label: 'Best Bowler',            sub: 'Women — Most wickets in the tournament',  icon: 'target',  gender: 'female', color: 'pink'   },
+  manOfSeries:       { label: 'Man of the Series',      sub: 'Best overall male performer — points',    icon: 'star',    gender: 'male',   color: 'blue'   },
+  womanOfSeries:     { label: 'Woman of the Series',    sub: 'Best overall female performer — points',  icon: 'star',    gender: 'female', color: 'pink'   },
+  mostSixes:         { label: 'Most Sixes',             sub: 'Most sixes hit in the tournament',        icon: 'six',     gender: null,     color: 'gold'   },
+  mostFours:         { label: 'Most Fours',             sub: 'Most fours hit in the tournament',        icon: 'four',    gender: null,     color: 'gold'   },
+  bestFielder:       { label: 'Best Fielder',           sub: 'Most dismissals (catches + run-outs)',     icon: 'glove',   gender: null,     color: 'gold'   },
+};
+
+const AWARD_ICONS = {
+  trophy: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
+  medal:  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>,
+  bat:    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l9-9"/><path d="M12.5 7.5l4 4"/><path d="M15 6l3-3 3 3-3 3-3-3z"/></svg>,
+  target: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+  star:   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  six:    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>,
+  four:   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 9h18"/></svg>,
+  glove:  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>,
 };
 
 // Section grouping
@@ -119,7 +130,7 @@ function AwardCard({ awardKey, award }) {
           <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 3 }}>{meta.sub}</p>
           <p style={{ fontSize: 15, fontWeight: 900, color: isWinner ? c.text : 'var(--text-primary)', letterSpacing: '-0.01em' }}>{meta.label}</p>
         </div>
-        <span style={{ fontSize: 28, lineHeight: 1 }}>{meta.icon}</span>
+        <div style={{ color: c.text, flexShrink: 0 }}>{AWARD_ICONS[meta.icon]}</div>
       </div>
 
       {/* Card body */}
@@ -204,7 +215,9 @@ export default function AwardsPage() {
             </div>
           ) : !hasAny ? (
             <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 16 }}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>🏆</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, color: 'var(--gold)' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+              </div>
               <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Awards Coming Soon</p>
               <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Awards will be revealed by the tournament admin after matches complete</p>
             </div>
