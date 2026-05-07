@@ -67,20 +67,96 @@ const Panel = ({ children, style = {} }) => (
   </div>
 );
 
-const Select = ({ value, onChange, children }) => (
-  <select value={value} onChange={onChange} style={{
-    width: '100%', padding: '10px 14px', borderRadius: 9,
-    background: C.bg0, border: `1px solid ${C.border}`,
-    color: value ? C.text : C.dim, fontSize: 13, fontWeight: 600,
-    outline: 'none', cursor: 'pointer', fontFamily: 'inherit',
-    transition: 'border-color .2s',
-  }}
-    onFocus={e => e.target.style.borderColor = 'rgba(201,162,39,0.4)'}
-    onBlur={e => e.target.style.borderColor = C.border}
-  >
-    {children}
-  </select>
-);
+/* ─── Custom Dropdown — replaces native <select> everywhere ─────────────── */
+function Dropdown({ value, onChange, options, placeholder = 'Select…', accentColor }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const accent = accentColor || C.gold;
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const selected = options.find(o => o.value === value);
+
+  return (
+    <div ref={ref} style={{ position: 'relative', width: '100%' }}>
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', padding: '10px 14px',
+          borderRadius: 9, border: `1px solid ${open ? `${accent}60` : C.border}`,
+          background: C.bg0, color: selected ? C.text : C.dim,
+          fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+          cursor: 'pointer', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', gap: 8,
+          outline: 'none', transition: 'border-color .2s',
+          boxShadow: open ? `0 0 0 2px ${accent}18` : 'none',
+        }}
+      >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {selected ? selected.label : placeholder}
+        </span>
+        <svg
+          width="12" height="12" viewBox="0 0 24 24" fill="none"
+          stroke={open ? accent : C.dim} strokeWidth="2.5"
+          strokeLinecap="round" strokeLinejoin="round"
+          style={{ flexShrink: 0, transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'rotate(0)' }}
+        >
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      {/* Dropdown list */}
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
+          background: C.bg1, border: `1px solid ${accent}40`,
+          borderRadius: 10, zIndex: 200,
+          boxShadow: `0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.4)`,
+          maxHeight: 220, overflowY: 'auto',
+          scrollbarWidth: 'thin', scrollbarColor: `${accent}30 transparent`,
+        }}>
+          {options.map((opt, i) => {
+            const isSelected = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+                style={{
+                  width: '100%', padding: '10px 14px',
+                  background: isSelected ? `${accent}18` : 'transparent',
+                  color: isSelected ? accent : opt.value === '' ? C.dim : C.text,
+                  fontSize: 13, fontWeight: isSelected ? 700 : 500,
+                  fontFamily: 'inherit', border: 'none', cursor: 'pointer',
+                  textAlign: 'left', display: 'flex', alignItems: 'center',
+                  justifyContent: 'space-between', gap: 8,
+                  borderBottom: i < options.length - 1 ? `1px solid rgba(255,255,255,0.04)` : 'none',
+                  transition: 'background .1s',
+                }}
+                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
+              >
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opt.label}</span>
+                {isSelected && (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ScorePage() {
   const { id } = useParams();
@@ -163,11 +239,18 @@ export default function ScorePage() {
   const handleSetPlayers = useCallback(async (os, ons, ob, oi) => {
     const s = os ?? strikerRef.current, ns = ons ?? nonStrikerRef.current;
     const b = ob ?? bowlerRef.current, inn = oi ?? inningsNumRef.current;
-    if (!s || !ns || !b) return;
-    // Debounce: cancel any pending call and wait 150ms
+    // Need at least both batsmen OR at least a bowler to make the call
+    if (!s && !ns && !b) return;
     if (setPlayersTimerRef.current) clearTimeout(setPlayersTimerRef.current);
     setPlayersTimerRef.current = setTimeout(async () => {
-      const res = await api.put(`/matches/${id}/players`, { inningsNum: inn, strikerId: s, nonStrikerId: ns, bowlerId: b });
+      const body = { inningsNum: inn };
+      // Only send batsmen if both are set
+      if (s && ns) { body.strikerId = s; body.nonStrikerId = ns; }
+      // Only send bowler if set
+      if (b) body.bowlerId = b;
+      // Nothing to send
+      if (!body.strikerId && !body.bowlerId) return;
+      const res = await api.put(`/matches/${id}/players`, body);
       if (res._id) {
         setMatch(res);
         const ui = inn === 1 ? res.innings1 : res.innings2;
@@ -176,8 +259,8 @@ export default function ScorePage() {
           const nsk = ui.currentBatsmen.find(bm => !bm.isStriker);
           const skId  = sk?.player  ? (typeof sk.player  === 'object' ? sk.player._id  : sk.player)  : s;
           const nskId = nsk?.player ? (typeof nsk.player === 'object' ? nsk.player._id : nsk.player) : ns;
-          setStrikerId(skId);    strikerRef.current    = skId;
-          setNonStrikerId(nskId); nonStrikerRef.current = nskId;
+          if (skId)  { setStrikerId(skId);    strikerRef.current    = skId; }
+          if (nskId) { setNonStrikerId(nskId); nonStrikerRef.current = nskId; }
         }
       }
     }, 150);
@@ -199,7 +282,7 @@ export default function ScorePage() {
     if (res._id) {
       setMatch(res);
       const ui = inn === 1 ? res.innings1 : res.innings2;
-      let ns2 = s, nns2 = ns, nb2 = b;
+      let ns2 = s, nns2 = ns;
       if (ui?.currentBatsmen?.length > 0) {
         const sk = ui.currentBatsmen.find(bm => bm.isStriker);
         const nsk = ui.currentBatsmen.find(bm => !bm.isStriker);
@@ -207,7 +290,7 @@ export default function ScorePage() {
         nns2 = nsk?.player ? (typeof nsk.player === 'object' ? nsk.player._id : nsk.player) : ns;
       }
       if (!ui?.currentBowler?.player) {
-        nb2 = ''; setBowlerId(''); bowlerRef.current = '';
+        setBowlerId(''); bowlerRef.current = '';
         showMsg('Over complete — select new bowler', 'info', 4000);
       }
       setStrikerId(ns2); setNonStrikerId(nns2);
@@ -254,13 +337,11 @@ export default function ScorePage() {
   const confirmExtras = () => {
     setExtrasModal(false);
     const isWide = extrasType === 'wd';
-    const isNB = extrasType === 'nb' || extrasType?.startsWith('nb-');
-    const isBye = extrasType === 'b' || extrasType === 'lb';
-    // Wide: total = 1 (penalty) + extrasRuns (batsman ran)
-    // NB: total = extrasRuns (already includes the 1 penalty)
-    // Bye/LB: total = extrasRuns (runs scored, don't count to batsman)
-    const totalRuns = isWide ? 1 + extrasRuns : extrasRuns;
-    submitBall({ runs: totalRuns, extras: extrasType });
+    // Wide: send only the extra runs batsman ran (penalty is added by backend)
+    // NB: send total runs (no separate penalty in backend for NB)
+    // Bye/LB: send the runs scored
+    const runsToSend = extrasRuns;
+    submitBall({ runs: runsToSend, extras: extrasType });
   };
 
   if (!match) return (
@@ -286,7 +367,7 @@ export default function ScorePage() {
   // Get previous over (completed over)
   const prevOverNum = (innings?.overs || 0) - 1;
   const prevOverBalls = prevOverNum >= 0 ? (innings?.ballByBall || []).filter(b => b.over === prevOverNum) : [];
-  const prevOverRuns = prevOverBalls.reduce((sum, b) => sum + (b.runs || 0) + (b.extras ? 1 : 0), 0);
+  const prevOverRuns = prevOverBalls.reduce((sum, b) => sum + (b.runs || 0), 0);
 
   return (
     <AdminLayout>
@@ -437,13 +518,19 @@ export default function ScorePage() {
                 <span style={{ width: 5, height: 5, borderRadius: '50%', background: C.gold, display: 'inline-block', animation: 'pulse 1.5s ease-in-out infinite' }} />
                 Striker
               </p>
-              <Select value={strikerId} onChange={e => {
-                const v = e.target.value; setStrikerId(v); strikerRef.current = v;
-                if (v && nonStrikerRef.current && bowlerRef.current) handleSetPlayers(v, nonStrikerRef.current, bowlerRef.current, inningsNumRef.current);
-              }}>
-                <option value="">Select striker</option>
-                {battingPlayers.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-              </Select>
+              <Dropdown
+                value={strikerId}
+                placeholder="Select striker"
+                accentColor={C.gold}
+                options={[
+                  { value: '', label: 'Select striker' },
+                  ...battingPlayers.map(p => ({ value: p._id, label: p.name })),
+                ]}
+                onChange={v => {
+                  setStrikerId(v); strikerRef.current = v;
+                  if (v && nonStrikerRef.current) handleSetPlayers(v, nonStrikerRef.current, bowlerRef.current, inningsNumRef.current);
+                }}
+              />
               {striker ? (
                 <p style={{ fontSize: 11, color: C.dim, marginTop: 5, fontWeight: 600 }}>
                   {striker.runs}({striker.balls}) · 4s:{striker.fours} 6s:{striker.sixes}
@@ -474,13 +561,19 @@ export default function ScorePage() {
             {/* Non-striker */}
             <div>
               <p style={{ fontSize: 9, fontWeight: 700, color: C.muted, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>Non-Striker</p>
-              <Select value={nonStrikerId} onChange={e => {
-                const v = e.target.value; setNonStrikerId(v); nonStrikerRef.current = v;
-                if (strikerRef.current && v && bowlerRef.current) handleSetPlayers(strikerRef.current, v, bowlerRef.current, inningsNumRef.current);
-              }}>
-                <option value="">Select non-striker</option>
-                {battingPlayers.filter(p => p._id !== strikerId).map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-              </Select>
+              <Dropdown
+                value={nonStrikerId}
+                placeholder="Select non-striker"
+                accentColor={C.muted}
+                options={[
+                  { value: '', label: 'Select non-striker' },
+                  ...battingPlayers.filter(p => p._id !== strikerId).map(p => ({ value: p._id, label: p.name })),
+                ]}
+                onChange={v => {
+                  setNonStrikerId(v); nonStrikerRef.current = v;
+                  if (strikerRef.current && v) handleSetPlayers(strikerRef.current, v, bowlerRef.current, inningsNumRef.current);
+                }}
+              />
               {nonStriker ? (
                 <p style={{ fontSize: 11, color: C.dim, marginTop: 5, fontWeight: 600 }}>
                   {nonStriker.runs}({nonStriker.balls}) · 4s:{nonStriker.fours} 6s:{nonStriker.sixes}
@@ -492,13 +585,19 @@ export default function ScorePage() {
           </div>
 
           <Label>Current Bowler</Label>
-          <Select value={bowlerId} onChange={e => {
-            const v = e.target.value; setBowlerId(v); bowlerRef.current = v;
-            if (strikerRef.current && nonStrikerRef.current && v) handleSetPlayers(strikerRef.current, nonStrikerRef.current, v, inningsNumRef.current);
-          }}>
-            <option value="">Select bowler</option>
-            {bowlingPlayers.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-          </Select>
+          <Dropdown
+            value={bowlerId}
+            placeholder="Select bowler"
+            accentColor={C.red}
+            options={[
+              { value: '', label: 'Select bowler' },
+              ...bowlingPlayers.map(p => ({ value: p._id, label: p.name })),
+            ]}
+            onChange={v => {
+              setBowlerId(v); bowlerRef.current = v;
+              if (strikerRef.current && nonStrikerRef.current && v) handleSetPlayers(strikerRef.current, nonStrikerRef.current, v, inningsNumRef.current);
+            }}
+          />
           {currentBowler?.player && (
             <p style={{ fontSize: 11, color: C.dim, marginTop: 6, fontWeight: 600 }}>
               {currentBowler.overs}.{currentBowler.balls} ov · {currentBowler.runs}r / {currentBowler.wickets}w
@@ -580,31 +679,35 @@ export default function ScorePage() {
           {innings?.overs > 0 && (
             <Panel style={{ padding: '14px 18px' }}>
               <Label>Over History</Label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {Array.from({ length: innings.overs }, (_, i) => {
                   const overBalls = (innings.ballByBall || []).filter(b => b.over === i);
-                  const overRuns = overBalls.reduce((sum, b) => sum + (b.runs || 0) + (b.extras ? 1 : 0), 0);
+                  // Correct over runs = sum of all ball.runs (already stored as total per delivery)
+                  const overRuns = overBalls.reduce((sum, b) => sum + (b.runs || 0), 0);
                   const hasWicket = overBalls.some(b => b.isWicket);
-                  // Get bowler name from the first ball of this over
                   const bowlerIdOfOver = overBalls[0]?.bowler?.toString();
                   const bowlerEntry = innings.bowling?.find(b => b.player?._id?.toString() === bowlerIdOfOver || b.player?.toString() === bowlerIdOfOver);
                   const bowlerName = bowlerEntry?.player?.name || '';
                   return (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.02)', border: `1px solid ${C.border}` }}>
-                      <div style={{ minWidth: 36 }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: C.dim, letterSpacing: '0.04em', display: 'block' }}>OV {i + 1}</span>
-                        {bowlerName && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 60, display: 'block' }}>{bowlerName.split(' ')[0]}</span>}
+                    <div key={i} style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.02)', border: `1px solid ${C.border}` }}>
+                      {/* Over header row */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: C.dim, letterSpacing: '0.04em' }}>OV {i + 1}</span>
+                          {bowlerName && <span style={{ fontSize: 10, color: C.muted, fontWeight: 600 }}>{bowlerName.split(' ')[0]}</span>}
+                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: hasWicket ? C.red : C.gold, fontFamily: 'var(--font-bebas)' }}>
+                          {overRuns}{hasWicket ? 'W' : ''}
+                        </span>
                       </div>
-                      <div style={{ display: 'flex', gap: 4, flex: 1 }}>
+                      {/* Ball badges — wrap on mobile */}
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                         {overBalls.map((ball, j) => (
-                          <div key={j} style={{ width: 26, height: 26, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, fontFamily: 'var(--font-bebas)', ...ballStyle(ball) }}>
+                          <div key={j} style={{ minWidth: 28, height: 28, paddingInline: 4, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, fontFamily: 'var(--font-bebas)', ...ballStyle(ball) }}>
                             {ballLabel(ball)}
                           </div>
                         ))}
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: hasWicket ? C.red : C.gold, minWidth: 32, textAlign: 'right', fontFamily: 'var(--font-bebas)' }}>
-                        {overRuns}{hasWicket ? 'W' : ''}
-                      </span>
                     </div>
                   );
                 }).reverse()}
@@ -649,21 +752,19 @@ export default function ScorePage() {
                   <p style={{ fontSize: 10, fontWeight: 700, color: C.dim, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
                     {wicketType === 'caught' ? 'Caught by' : wicketType === 'stumped' ? 'Stumped by' : 'Run out by'}
                   </p>
-                  <select
+                  <Dropdown
                     value={fielderId}
-                    onChange={e => setFielderId(e.target.value)}
-                    style={{
-                      width: '100%', padding: '10px 14px', borderRadius: 9,
-                      background: C.bg0, border: `1px solid ${fielderId ? 'rgba(239,68,68,0.5)' : C.border}`,
-                      color: fielderId ? C.text : C.dim, fontSize: 13, fontWeight: 600,
-                      outline: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                    }}
-                  >
-                    <option value="">— Select fielder —</option>
-                    {bowlingPlayers.map(p => (
-                      <option key={p._id} value={p._id}>{p.name}{p.role === 'wicketkeeper' ? ' (WK)' : ''}</option>
-                    ))}
-                  </select>
+                    placeholder="— Select fielder —"
+                    accentColor={C.red}
+                    options={[
+                      { value: '', label: '— Select fielder —' },
+                      ...bowlingPlayers.map(p => ({
+                        value: p._id,
+                        label: p.name + (p.role === 'wicketkeeper' ? ' (WK)' : ''),
+                      })),
+                    ]}
+                    onChange={v => setFielderId(v)}
+                  />
                   {!fielderId && (
                     <p style={{ fontSize: 10, color: 'rgba(239,68,68,0.7)', marginTop: 5, fontWeight: 600 }}>
                       Fielder required for this dismissal type

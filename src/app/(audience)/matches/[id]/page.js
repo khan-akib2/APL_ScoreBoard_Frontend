@@ -309,18 +309,20 @@ function BallDot({ ball }) {
   );
 
   let bg = 'var(--bg-elevated)', color = 'var(--text-secondary)', border = 'var(--border-subtle)';
-  let label = String(ball.runs);
+  let label = String(ball.runs ?? 0);
 
   if (ball.isWicket) {
     bg = 'rgba(239,68,68,0.12)'; color = 'var(--red)'; border = 'rgba(239,68,68,0.4)'; label = 'W';
-  } else if (ball.runs === 6) {
-    bg = 'rgba(201,162,39,0.12)'; color = 'var(--gold)'; border = 'rgba(201,162,39,0.4)';
-  } else if (ball.runs === 4) {
-    bg = 'rgba(34,197,94,0.12)'; color = 'var(--green)'; border = 'rgba(34,197,94,0.4)';
   } else if (ball.extras === 'wd') {
-    bg = 'rgba(251,146,60,0.1)'; color = '#fb923c'; border = 'rgba(251,146,60,0.3)'; label = 'Wd';
+    bg = 'rgba(251,146,60,0.1)'; color = '#fb923c'; border = 'rgba(251,146,60,0.3)';
+    label = (ball.runs ?? 0) > 0 ? `Wd+${ball.runs}` : 'Wd';
   } else if (ball.extras?.startsWith('nb')) {
-    bg = 'rgba(251,146,60,0.1)'; color = '#fb923c'; border = 'rgba(251,146,60,0.3)'; label = 'Nb';
+    bg = 'rgba(251,146,60,0.1)'; color = '#fb923c'; border = 'rgba(251,146,60,0.3)';
+    label = `NB+${ball.runs ?? 0}`;
+  } else if ((ball.runs ?? 0) >= 6) {
+    bg = 'rgba(201,162,39,0.12)'; color = 'var(--gold)'; border = 'rgba(201,162,39,0.4)';
+  } else if ((ball.runs ?? 0) === 4) {
+    bg = 'rgba(34,197,94,0.12)'; color = 'var(--green)'; border = 'rgba(34,197,94,0.4)';
   }
 
   return (
