@@ -33,15 +33,17 @@ async function handleResponse(r) {
 }
 
 export const api = {
-  get: (path) =>
-    fetch(`${BASE_URL}${path}`, { headers: jsonHeaders() })
+  get: (path, signal) =>
+    fetch(`${BASE_URL}${path}`, { headers: jsonHeaders(), signal })
       .then(handleResponse)
-      .catch(() => ({ error: true, message: 'Network Error' })),
+      .catch(err => {
+        if (err.name === 'AbortError') return { error: true, aborted: true };
+        return { error: true, message: 'Network Error' };
+      }),
 
   post: (path, body) =>
     fetch(`${BASE_URL}${path}`, {
       method: 'POST',
-      // Don't send auth token on login endpoint
       headers: path === '/auth/login'
         ? { 'Content-Type': 'application/json' }
         : jsonHeaders(),
