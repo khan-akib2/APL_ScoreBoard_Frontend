@@ -49,7 +49,7 @@ export default function AdminLeaderboard() {
   };
 
   useEffect(() => {
-    const t = setInterval(load, 10000);
+    const t = setInterval(load, 12000);
     return () => clearInterval(t);
   }, []);
 

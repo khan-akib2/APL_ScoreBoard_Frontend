@@ -180,14 +180,15 @@ export default function AwardsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let controller = new AbortController();
     const load = async () => {
-      const data = await api.get('/awards');
-      setAwards(data || {});
+      const data = await api.get('/awards', controller.signal);
+      if (data && !data.error) setAwards(data || {});
       setLoading(false);
     };
     load();
-    const t = setInterval(load, 15000);
-    return () => clearInterval(t);
+    const t = setInterval(load, 20000);
+    return () => { controller.abort(); clearInterval(t); };
   }, []);
 
   const hasAny = Object.values(awards).some(v => v?.player);

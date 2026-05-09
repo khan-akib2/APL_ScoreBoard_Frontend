@@ -13,9 +13,13 @@ export default function MatchesPage() {
   const [activeStage, setActiveStage] = useState('group');
 
   useEffect(() => {
-    api.get('/matches').then((data) => {
+    let controller = new AbortController();
+    const load = () => api.get('/matches', controller.signal).then(data => {
       if (Array.isArray(data)) setMatches(data);
     });
+    load();
+    const t = setInterval(load, 10000);
+    return () => { controller.abort(); clearInterval(t); };
   }, []);
 
   const filtered = matches.filter((m) => m.stage === activeStage);

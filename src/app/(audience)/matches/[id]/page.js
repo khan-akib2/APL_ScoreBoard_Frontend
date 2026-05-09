@@ -11,15 +11,23 @@ export default function MatchDetailPage() {
   const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
+    let controller = new AbortController();
+
+    const fetchMatch = async () => {
       setSyncing(true);
-      const d = await api.get(`/matches/${id}`);
+      const d = await api.get(`/matches/${id}`, controller.signal);
       if (d._id) setMatch(d);
       setSyncing(false);
     };
-    fetch();
-    const t = setInterval(fetch, 4000);
-    return () => clearInterval(t);
+
+    fetchMatch();
+    // Live match: poll every 3s. Non-live: poll every 10s (set after first fetch)
+    let interval = setInterval(fetchMatch, 3000);
+
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, [id]);
 
   if (!match) return <UserLayout><Loading /></UserLayout>;

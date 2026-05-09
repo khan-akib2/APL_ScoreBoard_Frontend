@@ -125,14 +125,15 @@ export default function SummaryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let controller = new AbortController();
     const load = async () => {
-      const d = await api.get('/matches');
+      const d = await api.get('/matches', controller.signal);
       if (Array.isArray(d)) setMatches(d);
       setLoading(false);
     };
     load();
-    const t = setInterval(load, 8000);
-    return () => clearInterval(t);
+    const t = setInterval(load, 10000);
+    return () => { controller.abort(); clearInterval(t); };
   }, []);
 
   const computed = useMemo(() => {

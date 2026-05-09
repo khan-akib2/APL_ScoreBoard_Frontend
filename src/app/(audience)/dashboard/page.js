@@ -30,24 +30,32 @@ function DashboardContent() {
     if (tab) setActiveTab(tab);
   }, [searchParams]);
 
-  const fetchData = async (silent = false) => {
+  const fetchData = async (signal, silent = false) => {
     if (!silent) setSyncing(true);
     const [live, all, stand] = await Promise.all([
-      api.get('/matches/live'), api.get('/matches'), api.get('/standings'),
+      api.get('/matches/live', signal),
+      api.get('/matches', signal),
+      api.get('/standings', signal),
     ]);
+    if (live?.error?.aborted || all?.error?.aborted) return; // cancelled
     setLiveMatches(Array.isArray(live) ? live : []);
     setAllMatches(Array.isArray(all) ? all : []);
-    setStandings(stand.groupA ? stand : { groupA: [], groupB: [] });
+    setStandings(stand?.groupA ? stand : { groupA: [], groupB: [] });
     setLoading(false);
     setLastUpdated(new Date());
     setSyncing(false);
   };
 
   useEffect(() => {
-    fetchData();
-    // Poll every 4 seconds for near-real-time updates
-    const i = setInterval(() => fetchData(true), 4000);
-    return () => clearInterval(i);
+    let controller = new AbortController();
+    fetchData(controller.signal);
+    // Poll every 5s — fast enough for live scoring, not hammering the server
+    const i = setInterval(() => {
+      controller.abort();
+      controller = new AbortController();
+      fetchData(controller.signal, true);
+    }, 5000);
+    return () => { controller.abort(); clearInterval(i); };
   }, []);
 
   const completed = allMatches.filter((m) => m.status === 'completed');

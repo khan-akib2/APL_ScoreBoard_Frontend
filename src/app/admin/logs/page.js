@@ -118,7 +118,7 @@ export default function AdminLogs() {
   };
 
   useEffect(() => {
-    const t = setInterval(load, 3000);
+    const t = setInterval(load, 5000);
     return () => clearInterval(t);
   }, []);
 

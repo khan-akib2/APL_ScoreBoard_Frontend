@@ -47,14 +47,15 @@ function TeamLeaderboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let controller = new AbortController();
     const load = async () => {
-      const data = await api.get('/standings/leaderboard');
+      const data = await api.get('/standings/leaderboard', controller.signal);
       if (Array.isArray(data)) setTeams(data);
       setLoading(false);
     };
     load();
-    const t = setInterval(load, 10000);
-    return () => clearInterval(t);
+    const t = setInterval(load, 12000);
+    return () => { controller.abort(); clearInterval(t); };
   }, []);
 
   if (loading) return <Spinner />;
@@ -152,14 +153,15 @@ function PlayerLeaderboard() {
   const [gender, setGender]   = useState('male');
 
   useEffect(() => {
+    let controller = new AbortController();
     const load = async () => {
-      const d = await api.get('/players/leaderboard');
-      if (d && !d.message) setData(d);
+      const d = await api.get('/players/leaderboard', controller.signal);
+      if (d && !d.message && !d.error) setData(d);
       setLoading(false);
     };
     load();
-    const t = setInterval(load, 15000);
-    return () => clearInterval(t);
+    const t = setInterval(load, 20000);
+    return () => { controller.abort(); clearInterval(t); };
   }, []);
 
   if (loading) return <Spinner />;
